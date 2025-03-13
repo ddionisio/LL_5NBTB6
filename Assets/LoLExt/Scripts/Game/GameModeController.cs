@@ -29,7 +29,10 @@ namespace LoLExt {
                 yield return null;
             } while(M8.SceneManager.instance.isLoading);
 
-            if(signalModeChanged)
+			while(!LoLManager.instance.isReady)
+				yield return null;
+
+			if(signalModeChanged)
                 signalModeChanged.Invoke(mode);
         }
     }

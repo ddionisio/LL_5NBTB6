@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 650800ed60807f44a876f1b9b339f4ba, type: 3}
+  m_Name: gameData
+  m_EditorClassIdentifier: 
+  blobDividend: {fileID: 0}
+  blobDivisor: {fileID: 0}
+  blobQuotient: {fileID: 0}
+  blobSpawnPoolCapacity: 16
+  blobSpawnCheckMask:
+    serializedVersion: 2
+    m_Bits: 384
+  blobSpawnDelay: 0.3
+  blobSpawnClearoutForce: 5
+  blobSpawnClearoutDelay: 3

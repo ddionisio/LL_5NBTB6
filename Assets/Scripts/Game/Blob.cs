@@ -9,6 +9,7 @@ using TMPro;
 /// Blob number
 /// </summary>
 public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
+    public const string parmData = "dat";
     public const string parmNumber = "number";
 
     public enum State {
@@ -18,10 +19,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         Despawning, //animate and release
         Error, //error highlight for a bit
         Correct //animate and release
-    }
-
-    public class ColorPulseInfo {
-
     }
 
     [Header("Jelly")]
@@ -94,6 +91,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public SignalBlob signalInvokeDragBegin;
     public SignalBlob signalInvokeDragEnd;
     public SignalBlob signalInvokeDespawn;
+
+    public BlobData blobData { get; private set; }
 
     public int number {
         get { return mNumber; }
@@ -315,7 +314,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             mLastColor = jellySprite.m_Color;
         }
 
-        mNumber = 0;
+        blobData = null;
+		mNumber = 0;
         penaltyCounter = 0;
         mInputLocked = false;
         mInputLockedInternal = false;
@@ -331,6 +331,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             if(parms.ContainsKey(JellySpriteSpawnController.parmRotation)) rot = parms.GetValue<float>(JellySpriteSpawnController.parmRotation);
             if(parms.ContainsKey(JellySpriteSpawnController.parmSprite)) spr = parms.GetValue<Sprite>(JellySpriteSpawnController.parmSprite);
             if(!spawnIgnoreColorParam && parms.ContainsKey(JellySpriteSpawnController.parmColor)) clr = parms.GetValue<Color>(JellySpriteSpawnController.parmColor);
+
+            if(parms.ContainsKey(parmData))
+                blobData = parms.GetValue<BlobData>(parmData);
 
             if(parms.ContainsKey(parmNumber))
                 mNumber = parms.GetValue<int>(parmNumber);

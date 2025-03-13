@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "blobTemplateData", menuName = "Game/Blob Template Data")]
-public class BlobTemplateData : ScriptableObject {
+public class BlobData : ScriptableObject {
     [Header("Templates")]
     public GameObject[] templates;
 
