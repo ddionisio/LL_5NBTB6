@@ -132,6 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 234534447}
   - component: {fileID: 234534446}
+  - component: {fileID: 234534448}
   m_Layer: 0
   m_Name: playController
   m_TagString: Untagged
@@ -153,7 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mode: {fileID: 0}
   signalModeChanged: {fileID: 11400000, guid: 4f9dce914f15a6c4b8c0af0d08028ac5, type: 2}
-  connectControl: {fileID: 0}
+  boardControl: {fileID: 1346220083}
+  connectControl: {fileID: 234534448}
   playMusic: 
 --- !u!4 &234534447
 Transform:
@@ -170,6 +172,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &234534448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234534445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b029567178b53414a88a27048f936104, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolGroup: connect
+  connectTemplate: {fileID: 3437697989723519936, guid: 602ec4a6f9fab5e4d8714e6123a1ee49, type: 3}
+  capacity: 2
+  groupCapacity: 1
+  signalListenBlobDragBegin: {fileID: 11400000, guid: 0dd1c40d5bbeef54a8aaf4b6c89d5235, type: 2}
+  signalListenBlobDragEnd: {fileID: 11400000, guid: e277b755729c85042a3893c829311846, type: 2}
+  signalListenBlobDespawn: {fileID: 11400000, guid: 7b62e099b2cb63e40b85c16f921a5bde, type: 2}
+  signalListenBlobConnectDelete: {fileID: 11400000, guid: 5757351d2caa2ca4db0f27afb133074e, type: 2}
 --- !u!1 &642758500
 GameObject:
   m_ObjectHideFlags: 0
@@ -515,6 +537,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1346220082}
+  - component: {fileID: 1346220083}
   m_Layer: 0
   m_Name: board
   m_TagString: Untagged
@@ -539,6 +562,21 @@ Transform:
   - {fileID: 579027796466874202}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1346220083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1346220081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ac3bc7626bc034a81a7a6ee0f6611a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardOriginOffset: {x: 0, y: 0}
+  boardRadius: 7.4
+  blobPalette: {fileID: 11400000, guid: b35f694f177ceb8408ba3c4dc3e305a0, type: 2}
 --- !u!1 &1610060646
 GameObject:
   m_ObjectHideFlags: 0
@@ -800,7 +838,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 579027796466874202}
-  - component: {fileID: 7359402979030374242}
   m_Layer: 0
   m_Name: collision
   m_TagString: Untagged
@@ -819,10 +856,6 @@ PrefabInstance:
     - target: {fileID: 1719631230941289446, guid: 1fd71091f756f9244b0cf2a42b71e7b2, type: 3}
       propertyPath: m_Name
       value: gameCamera2D
-      objectReference: {fileID: 0}
-    - target: {fileID: 2919506643365854739, guid: 1fd71091f756f9244b0cf2a42b71e7b2, type: 3}
-      propertyPath: m_projectionMatrixMode
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4456594635083934104, guid: 1fd71091f756f9244b0cf2a42b71e7b2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1063,23 +1096,6 @@ PolygonCollider2D:
       - {x: -9.360495, y: -1.9926524}
       - {x: -10.039409, y: -2.0196087}
   m_UseDelaunayMesh: 0
---- !u!114 &7359402979030374242
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1551967527577386390}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bdec5f3ea2f9859429e69b1f03e027b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offset: {x: 0, y: 0, z: 0}
-  color: {r: 1, g: 0.94832873, b: 0, a: 1}
-  radius: 7.5
-  solid: 0
-  useCollider: 0
 --- !u!1 &8191893473236323399
 GameObject:
   m_ObjectHideFlags: 0

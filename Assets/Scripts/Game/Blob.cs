@@ -60,9 +60,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public M8.RangeFloat spawnEdgeImpulse;
     public bool spawnIgnoreColorParam;
 
-    [Header("Hint Settings")]
-    public GameObject hintActiveGO;
-
     [Header("Highlight Display")]
     public GameObject highlightGO; //active during enter and dragging
     public GameObject highlightLockGO; //active if isHighlightLock is true
@@ -73,11 +70,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     [Header("Animation")]
     public M8.Animator.Animate animator;
     [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeSpawn;
+    public int takeSpawn = -1;
     [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeDespawn;
+    public int takeDespawn = -1;
     [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeCorrect;
+    public int takeCorrect = -1;
 
     [Header("Sfx")]
     [M8.SoundPlaylist]
@@ -169,14 +166,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 clr.a = value;
                 jellySprite.SetColor(clr);
             }
-        }
-    }
-
-    public bool hintActive {
-        get { return hintActiveGO && hintActiveGO.activeSelf; }
-        set {
-            if(hintActiveGO)
-                hintActiveGO.SetActive(value);
         }
     }
 
@@ -347,16 +336,18 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             bool isColorChanged = jellySprite.m_Color != clr;
 
             jellySprite.m_Material = normalMaterial;
-            jellySprite.m_Sprite = mLastSprite = spr;
             jellySprite.m_Color = mLastColor = clr;
 
-            if(isColorChanged || isSpriteChanged)
-                jellySprite.RefreshMesh(); //just to ensure sprite uv's are properly applied
+            if(isSpriteChanged)
+                jellySprite.SetSprite(spr);
             else if(isMaterialChanged)
                 jellySprite.ReInitMaterial();
 
-            //reset and apply telemetry
-            jellySprite.Reset(pos, new Vector3(0f, 0f, rot));
+			if(isColorChanged)
+				jellySprite.RefreshColor();
+
+			//reset and apply telemetry
+			jellySprite.Reset(pos, new Vector3(0f, 0f, rot));
         }
         else {
             //directly apply telemetry
@@ -452,7 +443,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     IEnumerator DoSpawn() {
         M8.SoundPlaylist.instance.Play(soundSpawn, false);
 
-        if(animator && !string.IsNullOrEmpty(takeSpawn))
+        if(takeSpawn != -1)
             yield return animator.PlayWait(takeSpawn);
         else
             yield return null;
@@ -480,7 +471,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     IEnumerator DoDespawn() {
         ApplyJellySpriteMaterial(normalMaterial);
 
-        if(animator && !string.IsNullOrEmpty(takeDespawn))
+        if(takeDespawn != -1)
             yield return animator.PlayWait(takeDespawn);
         else
             yield return null;
@@ -502,7 +493,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         ApplyJellySpriteMaterial(normalMaterial);
 
         //something fancy
-        if(animator && !string.IsNullOrEmpty(takeCorrect))
+        if(takeCorrect != -1)
             yield return animator.PlayWait(takeCorrect);
 
         mRout = null;
@@ -693,14 +684,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
             case State.Spawning:
                 SetEyeBlinking(false);
-                hintActive = false;
                 //animate, and then set state to normal
                 mRout = StartCoroutine(DoSpawn());
                 break;
 
             case State.Despawning:
                 SetEyeBlinking(false);
-                hintActive = false;
                 mInputLockedInternal = true;
                 ApplyInputLocked();
 
@@ -710,7 +699,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
             case State.Correct:
                 SetEyeBlinking(false);
-                hintActive = false;
                 mInputLockedInternal = true;
                 ApplyInputLocked();
 
@@ -724,7 +712,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
             default:
                 SetEyeBlinking(false);
-                hintActive = false;
                 isDragInvalid = true;
                 break;
         }

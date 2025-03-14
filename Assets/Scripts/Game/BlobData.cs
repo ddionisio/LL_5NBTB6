@@ -4,18 +4,20 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "blobTemplateData", menuName = "Game/Blob Template Data")]
 public class BlobData : ScriptableObject {
-    [Header("Templates")]
-    public GameObject[] templates;
+    [Header("Pool Info")]
+    [SerializeField]
+	Blob _template;
+    [SerializeField]
+    int _capacity;
 
-    [Header("Spawn Info")]
-    public float spawnPointCheckRadius;
+    //TODO: connect filter
 
-    public GameObject template {
-        get { return templates.Length > 0 ? templates[Random.Range(0, templates.Length)] : null; }
-    }
+    public string templateName { get { return _template ? _template.name : ""; } }
 
-    public void InitPool(M8.PoolController pool, int capacity) {
-        for(int i = 0; i < templates.Length; i++)
-            pool.AddType(templates[i], capacity, capacity);
+    public float spawnPointCheckRadius { get { return _template ? _template.radius : 0f; } }
+
+    public void InitPool(M8.PoolController pool) {
+        if(_template)
+            pool.AddType(_template.gameObject, _capacity, _capacity);
     }
 }

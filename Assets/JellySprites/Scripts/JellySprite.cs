@@ -202,9 +202,6 @@ public abstract class JellySprite : MonoBehaviour
 
 	// List of reference point offset
 	Vector3[] m_ReferencePointOffsets;
-
-	// Cached transform
-	Transform m_Transform;
 #endregion
 
 #region PUBLIC_CLASSES
@@ -386,14 +383,6 @@ public abstract class JellySprite : MonoBehaviour
 	}
 #endregion
 
-	/// <summary>
-	/// JellySprite constructor
-	/// </summary>
-	void Awake()
-	{
-		m_Transform = this.transform;
-	}
-
 	//MODIFIED: allow manual initialization
 	public bool isInit { get; private set; }
 
@@ -401,15 +390,19 @@ public abstract class JellySprite : MonoBehaviour
 	public void SetColor(Color color) {
 		if(m_Color != color) {
 			m_Color = color;
-			if(m_SpriteMesh && m_Colors != null) {
-				for(int i = 0; i < m_Colors.Length; i++)
-					m_Colors[i] = m_Color;
-
-				m_SpriteMesh.colors = m_Colors;
-			}
-			else
-				InitMesh();
+			RefreshColor();
 		}
+	}
+
+	public void RefreshColor() {
+		if(m_SpriteMesh && m_Colors != null) {
+			for(int i = 0; i < m_Colors.Length; i++)
+				m_Colors[i] = m_Color;
+
+			m_SpriteMesh.colors = m_Colors;
+		}
+		else
+			InitMesh();
 	}
 
 	/// <summary>
@@ -480,8 +473,10 @@ public abstract class JellySprite : MonoBehaviour
 		m_IsAttachPointJellySprite = new bool[m_AttachPoints.Length];
 
 		if(Application.isPlaying) {
-			Vector3 spriteAngle = m_Transform.eulerAngles;
-			m_Transform.eulerAngles = Vector3.zero;
+			var trans = transform;
+
+			Vector3 spriteAngle = trans.eulerAngles;
+			trans.eulerAngles = Vector3.zero;
 
 #if UNITY_4_3
 			if(m_2DMode && !Physics2D.GetIgnoreLayerCollision(this.gameObject.layer, this.gameObject.layer))
@@ -537,7 +532,7 @@ public abstract class JellySprite : MonoBehaviour
 			foreach(ReferencePoint referencePoint in m_ReferencePoints) {
 				if(!referencePoint.IsDummy) {
 					Vector3 referencePointPosition = referencePoint.transform.position;
-					Vector3 centralPointPosition = m_Transform.position;
+					Vector3 centralPointPosition = trans.position;
 					referencePoint.transform.position = centralPointPosition + (Quaternion.Euler(spriteAngle) * (referencePointPosition - centralPointPosition));
 				}
 			}
@@ -558,6 +553,8 @@ public abstract class JellySprite : MonoBehaviour
 				referencePoint.InitialOffset = m_CentralPoint.transform.InverseTransformPoint(referencePoint.transform.position);
 			}
 		}
+
+		var trans = transform;
 	
 		int index = 0;
 
@@ -569,8 +566,8 @@ public abstract class JellySprite : MonoBehaviour
 
 			JellySprite attachedJellySprite = attachPointTransform.GetComponent<JellySprite>();
             Vector3 position = m_CentralPoint.transform.InverseTransformPoint(attachPointTransform.position);
-            position.x /= m_Transform.localScale.x;
-            position.y /= m_Transform.localScale.y;
+            position.x /= trans.localScale.x;
+            position.y /= trans.localScale.y;
 			
 			if(attachedJellySprite)
 			{
@@ -583,15 +580,15 @@ public abstract class JellySprite : MonoBehaviour
                 m_InitialAttachPointPositions[index++] = position;
 
 				//MODIFIED: proper parent setting
-				attachPointTransform.SetParent(m_Transform, true);
-				//attachPointTransform.parent = m_Transform;
+				attachPointTransform.SetParent(trans, true);
+				//attachPointTransform.parent = trans;
 			}
 		}
 
 		for(int loop = 0; loop < m_Vertices.Length; loop++)
 		{
-			m_InitialVertexPositions[loop] -= m_Transform.InverseTransformPoint(m_CentralPoint.transform.position);
-			m_Vertices[loop] -= m_Transform.InverseTransformPoint(m_CentralPoint.transform.position);
+			m_InitialVertexPositions[loop] -= trans.InverseTransformPoint(m_CentralPoint.transform.position);
+			m_Vertices[loop] -= trans.InverseTransformPoint(m_CentralPoint.transform.position);
 		}
 	}
 
@@ -647,10 +644,12 @@ public abstract class JellySprite : MonoBehaviour
 	/// </summary>
 	void CreateRigidBodiesCircle(Bounds spriteBounds)
 	{
+		var trans = transform;
+
 		int numPoints = m_RadiusPoints;
 		float width = spriteBounds.size.x * m_SpriteScale.x;
 		float radius = width * 0.5f;
-        float sphereRadius = m_SphereRadius * m_Transform.localScale.x;
+        float sphereRadius = m_SphereRadius * trans.localScale.x;
 
         m_CentralPoint = AddReferencePoint(m_CentralBodyOffset, width * sphereRadius, m_LockRotation);
 
@@ -663,7 +662,7 @@ public abstract class JellySprite : MonoBehaviour
 			offset *= radius;
 			offset.x *= m_SoftBodyScale.x;
 			offset.y *= m_SoftBodyScale.y;
-            Vector3 bodyPosition = offset * (1.0f - ((sphereRadius * width) / (m_Transform.localScale.x * offset.magnitude))) + m_SoftBodyOffset;
+            Vector3 bodyPosition = offset * (1.0f - ((sphereRadius * width) / (trans.localScale.x * offset.magnitude))) + m_SoftBodyOffset;
             ReferencePoint referencePoint = AddReferencePoint(bodyPosition, width * sphereRadius, true);
 			AttachPoint(referencePoint, m_CentralPoint);
 		}
@@ -687,7 +686,7 @@ public abstract class JellySprite : MonoBehaviour
 	{
 		float width = spriteBounds.size.x * m_SoftBodyScale.x * m_SpriteScale.x;
 		float height = spriteBounds.size.y * m_SoftBodyScale.y * m_SpriteScale.y;
-        float radius = spriteBounds.size.y * m_SphereRadius * m_SpriteScale.y * m_Transform.localScale.y;
+        float radius = spriteBounds.size.y * m_SphereRadius * m_SpriteScale.y * transform.localScale.y;
 		float offsetFactor = 0.5f - m_SphereRadius;
 
 		m_CentralPoint = AddReferencePoint(m_CentralBodyOffset, radius, m_LockRotation);
@@ -717,7 +716,7 @@ public abstract class JellySprite : MonoBehaviour
 	{
 		float width = spriteBounds.size.x * m_SoftBodyScale.x * m_SpriteScale.x;
 		float height = spriteBounds.size.y * m_SoftBodyScale.y * m_SpriteScale.y;
-        float radius = spriteBounds.size.y * m_SphereRadius * m_SpriteScale.y * m_Transform.localScale.y;
+        float radius = spriteBounds.size.y * m_SphereRadius * m_SpriteScale.y * transform.localScale.y;
 		float offsetFactor = 0.5f - m_SphereRadius;
 
 		m_CentralPoint = AddReferencePoint(m_CentralBodyOffset, radius, m_LockRotation);
@@ -749,7 +748,7 @@ public abstract class JellySprite : MonoBehaviour
     void CreateRigidBodiesLine(Bounds spriteBounds)
     {
         float width = spriteBounds.size.x * m_SoftBodyScale.x * m_SpriteScale.x;
-        float radius = spriteBounds.size.x * m_SphereRadius * m_SpriteScale.x * this.transform.localScale.x;
+        float radius = spriteBounds.size.x * m_SphereRadius * m_SpriteScale.x * transform.localScale.x;
 
         // Always create an odd number of points so that we can correctly pick the central one
         int numPoints = ((m_GridColumns/2) * 2) + 1;
@@ -978,7 +977,7 @@ public abstract class JellySprite : MonoBehaviour
 		GameObject referencePointObject = new GameObject();
 		referencePointObject.name = this.name + " Ref Point " + m_ReferencePoints.Count.ToString();
 		referencePointObject.transform.parent = m_ReferencePointParent.transform;
-		referencePointObject.transform.position = m_Transform.TransformPoint(position);
+		referencePointObject.transform.position = transform.TransformPoint(position);
 		referencePointObject.layer = gameObject.layer;
 		referencePointObject.tag = gameObject.tag;
 
@@ -1093,8 +1092,10 @@ public abstract class JellySprite : MonoBehaviour
 	/// </summary>
 	public void CalculateWeightingValues()
 	{
-        float inverseScaleX = 1.0f / m_Transform.localScale.x;
-        float inverseScaleY = 1.0f / m_Transform.localScale.y;
+		var localScale = transform.localScale;
+
+        float inverseScaleX = 1.0f / localScale.x;
+        float inverseScaleY = 1.0f / localScale.y;
 
 		if(m_ReferencePoints != null)
 		{
@@ -1255,7 +1256,7 @@ public abstract class JellySprite : MonoBehaviour
 	protected abstract bool IsSourceSpriteRotated();
 
 	protected void RefreshUV() {
-		if(!isInit) return;
+		if(!(isInit && IsSpriteValid())) return;
 
 		var spriteBounds = GetSpriteBounds();
 
@@ -1615,6 +1616,8 @@ public abstract class JellySprite : MonoBehaviour
 	/// </summary>
 	public void Rotate(float angleChange)
 	{
+		var trans = transform;
+
 		Vector3 eulerAngleChange = new Vector3(0.0f, 0.0f, angleChange);
 
 		// Rotate the central body by the required amount	
@@ -1626,7 +1629,7 @@ public abstract class JellySprite : MonoBehaviour
 			if(!referencePoint.IsDummy)			
 			{				
 				Vector3 referencePointPosition = referencePoint.transform.position;				
-				Vector3 centralPointPosition = m_Transform.position;				
+				Vector3 centralPointPosition = trans.position;				
 				referencePoint.transform.position = centralPointPosition + (Quaternion.Euler(eulerAngleChange) * (referencePointPosition - centralPointPosition));				
 			}			
 		}
@@ -1822,7 +1825,7 @@ public abstract class JellySprite : MonoBehaviour
 					width -= (m_SphereRadius * 4);
 					height -= (m_SphereRadius * 4);
 										
-					float radius = spriteBounds.size.x * m_SphereRadius * m_SpriteScale.x * m_Transform.localScale.x;
+					float radius = spriteBounds.size.x * m_SphereRadius * m_SpriteScale.x * transform.localScale.x;
 					AddFreeModeBodyDefinition(Vector2.zero, radius, m_CentralBodyKinematic);
 					int columns = m_GridColumns;
 					int rows = m_GridRows;
@@ -1968,6 +1971,8 @@ public abstract class JellySprite : MonoBehaviour
 		// (scaled by the weighting value) to the vertex's position
 		if(Application.isPlaying)
 		{
+			var trans = transform;
+
             Quaternion additionalBodyRotation = Quaternion.Euler(0, 0, m_SoftBodyRotation);
             Vector3 rotatedBodyOffset = additionalBodyRotation * m_CentralBodyOffset;
 
@@ -1996,7 +2001,7 @@ public abstract class JellySprite : MonoBehaviour
 				if(m_IsAttachPointJellySprite[attachPointIndex])
 				{
 					JellySprite attachedJellySprite = m_AttachPoints[attachPointIndex].GetComponent<JellySprite>();
-					attachedJellySprite.CentralPoint.transform.parent = m_Transform;
+					attachedJellySprite.CentralPoint.transform.parent = trans;
 					attachedJellySprite.CentralPoint.SetKinematic(true);
                     attachedJellySprite.CentralPoint.transform.localPosition = m_InitialAttachPointPositions[attachPointIndex] + totalOffset + rotatedBodyOffset;
 				}
@@ -2194,7 +2199,7 @@ public abstract class JellySprite : MonoBehaviour
             index++;
         }
 
-        m_Transform.localScale = m_Transform.localScale * scaleRatio;
+        transform.localScale = transform.localScale * scaleRatio;
         index = 0;
 
         foreach (ReferencePoint refPoint in m_ReferencePoints)
@@ -2272,6 +2277,8 @@ public abstract class JellySprite : MonoBehaviour
 	/// </summary>
 	public void AddAttachPoint(Transform newAttachedObject)
 	{
+		var trans = transform;
+
 		m_NumAttachPoints++;
 		ResizeAttachPoints();
 
@@ -2279,8 +2286,8 @@ public abstract class JellySprite : MonoBehaviour
 
 		JellySprite attachedJellySprite = newAttachedObject.GetComponent<JellySprite>();
         Vector3 position = m_CentralPoint.transform.InverseTransformPoint(newAttachedObject.position);
-        position.x /= m_Transform.localScale.x;
-        position.y /= m_Transform.localScale.y;
+        position.x /= trans.localScale.x;
+        position.y /= trans.localScale.y;
 			
 		if(attachedJellySprite)
 		{
@@ -2291,7 +2298,7 @@ public abstract class JellySprite : MonoBehaviour
 		{
 			m_IsAttachPointJellySprite[m_NumAttachPoints - 1] = false;
             m_InitialAttachPointPositions[m_NumAttachPoints - 1] = position;
-			newAttachedObject.parent = m_Transform;
+			newAttachedObject.parent = trans;
 		}
 
 		float distanceSum = 0.0f;
@@ -2398,10 +2405,12 @@ public abstract class JellySprite : MonoBehaviour
 
 			if(!m_ManualPositioning)
             {
+				var trans = transform;
+
                 Quaternion additionalBodyRotation = Quaternion.Euler(0, 0, m_SoftBodyRotation);
-                Vector3 rotatedPostion = additionalBodyRotation * new Vector3(-m_CentralBodyOffset.x * m_Transform.localScale.x, -m_CentralBodyOffset.y * m_Transform.localScale.y, 0);
-                m_Transform.position = m_CentralPoint.transform.TransformPoint(rotatedPostion);
-    			m_Transform.rotation = m_CentralPoint.transform.rotation;
+                Vector3 rotatedPostion = additionalBodyRotation * new Vector3(-m_CentralBodyOffset.x * trans.localScale.x, -m_CentralBodyOffset.y * trans.localScale.y, 0);
+                trans.position = m_CentralPoint.transform.TransformPoint(rotatedPostion);
+    			trans.rotation = m_CentralPoint.transform.rotation;
             }
 
 			// Apply our rigid body movements to the rendered mesh

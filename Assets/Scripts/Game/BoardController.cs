@@ -130,7 +130,7 @@ public class BoardController : MonoBehaviour {
 			mBlobSpawnRout = StartCoroutine(DoSpawnQueue());
 	}
 
-	public void Spawn(string nameOverride, BlobData blobData, int number) {
+	public void Spawn(BlobData blobData, string nameOverride, int number) {
 		mBlobSpawnQueue.Enqueue(new BlobSpawnInfo { nameOverride = nameOverride, data = blobData, number = number });
 		if(mBlobSpawnRout == null)
 			mBlobSpawnRout = StartCoroutine(DoSpawnQueue());
@@ -231,7 +231,7 @@ public class BoardController : MonoBehaviour {
 			}
 
 			//spawn
-			var template = blobDat.template;
+			var templateName = blobDat.templateName;
 
 			mBlobSpawnParms[JellySpriteSpawnController.parmPosition] = spawnPt;
 			mBlobSpawnParms[Blob.parmData] = blobDat;
@@ -241,7 +241,7 @@ public class BoardController : MonoBehaviour {
 
 			if(string.IsNullOrEmpty(spawnInfo.nameOverride)) {
 				mBlobNameCache.Clear();
-				mBlobNameCache.Append(template.name);
+				mBlobNameCache.Append(templateName);
 				mBlobNameCache.Append(' ');
 				mBlobNameCache.Append(spawnInfo.number);
 
@@ -250,7 +250,7 @@ public class BoardController : MonoBehaviour {
 			else
 				blobName = spawnInfo.nameOverride;
 
-			var blob = mBlobPool.Spawn<Blob>(template.name, blobName, null, mBlobSpawnParms);
+			var blob = mBlobPool.Spawn<Blob>(templateName, blobName, null, mBlobSpawnParms);
 
 			blob.poolData.despawnCallback += OnBlobRelease;
 
@@ -274,5 +274,10 @@ public class BoardController : MonoBehaviour {
 
 	private Vector2 GenerateBlobSpawnPoint(float blobRadius) {
 		return boardPosition + (Random.insideUnitCircle * (boardRadius - blobRadius));
+	}
+
+	void OnDrawGizmos() {
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawWireSphere(boardPosition, boardRadius);
 	}
 }

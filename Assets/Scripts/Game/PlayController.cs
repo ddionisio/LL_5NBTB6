@@ -7,8 +7,8 @@ using LoLExt;
 public class PlayController : GameModeController<PlayController> {
 
 	[Header("Controls")]
+	public BoardController boardControl;
 	public BlobConnectController connectControl;
-	//public BlobSpawner blobSpawner;
 
 	[Header("Music")]
 	[M8.MusicPlaylist]

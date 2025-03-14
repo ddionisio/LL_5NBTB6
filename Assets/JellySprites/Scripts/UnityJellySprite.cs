@@ -74,10 +74,16 @@ public class UnityJellySprite : JellySprite
 
 	public void SetSprite(Sprite sprite) {
 		if(m_Sprite != sprite) {
+			var isDimensionChanged = sprite != null && (m_Sprite == null || m_Sprite.bounds.size.x != sprite.bounds.size.x || m_Sprite.bounds.size.y != sprite.bounds.size.y);
+
 			m_Sprite = sprite;
 
-			RefreshUV();
-			InitMaterial();
+			if(isDimensionChanged)
+				RefreshMesh();
+			else {
+				RefreshUV();
+				InitMaterial();
+			}
 		}
 	}
 

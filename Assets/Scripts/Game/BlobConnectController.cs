@@ -351,8 +351,13 @@ public class BlobConnectController : MonoBehaviour {
     }
 
     void Awake() {
-        mPool = M8.PoolController.CreatePool(poolGroup);
-        mPool.AddType(connectTemplate, capacity, capacity);
+        mPool = M8.PoolController.GetPool(poolGroup);
+        if(!mPool) {
+            mPool = M8.PoolController.CreatePool(poolGroup);
+            mPool.gameObject.DontDestroyOnLoad();
+
+            mPool.AddType(connectTemplate, capacity, capacity);
+        }
 
         //setup group
         mGroupActives = new M8.CacheList<Group>(groupCapacity);
