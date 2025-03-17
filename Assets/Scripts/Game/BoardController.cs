@@ -6,22 +6,34 @@ public class BoardController : MonoBehaviour {
 	public const string blobSpawnPoolGroup = "blobs";
 	public const int blobActiveCapacity = 128;
 
-	public struct BlobSpawnInfo {
-		public string nameOverride; //ignored if null or empty
-		public BlobData data;
-		public int number;
-	}
+	[Header("Board Data")]
+	public int hitpointMax = 5;
+	public int attackMax = 4;
 
-	[Header("Board")]
-	public Vector2 boardOriginOffset;
-	public float boardRadius;
+	[Header("Board Telemetry")]
+	public Vector2 originOffset;
+	public float radius;
+
+	[Header("Board Animation")]
+	public M8.Animator.Animate animator;
+
+	[M8.Animator.TakeSelector]
+	public int takeReady = -1;
+	[M8.Animator.TakeSelector]
+	public int takeHurt = -1;
+	[M8.Animator.TakeSelector]
+	public int takeDefeat = -1;
 
 	[Header("Blob")]
 	public M8.ColorPalette blobPalette;
 
-	public Vector2 boardPosition {
-		get { return ((Vector2)transform.position) + boardOriginOffset; }
+	public Vector2 position {
+		get { return ((Vector2)transform.position) + originOffset; }
 	}
+
+	public int hitpoints { get { return mHitpointCurrent; } }
+
+	public int attack { get { return mAttackCurrent; } }
 
 	public int blobSpawnQueueCount { get { return mBlobSpawnQueue.Count; } }
 
@@ -31,6 +43,11 @@ public class BoardController : MonoBehaviour {
 
 	public bool isBlobSpawning { get { return mBlobSpawnRout != null; } }
 
+	public int blobActiveCount { get { return mBlobActives.Count; } }
+
+	private int mHitpointCurrent;
+	private int mAttackCurrent;
+
 	private M8.PoolController mBlobPool;
 
 	private WaitForSeconds mBlobSpawnWait;
@@ -38,16 +55,49 @@ public class BoardController : MonoBehaviour {
 	private int[] mBlobPaletteIndices;
 	private int mBlobPaletteCurrentInd;
 
-	private Queue<BlobSpawnInfo> mBlobSpawnQueue = new Queue<BlobSpawnInfo>();
+	private Queue<BlobSpawnInfo> mBlobSpawnQueue = new Queue<BlobSpawnInfo>(blobActiveCapacity);
 	private Coroutine mBlobSpawnRout;
 
 	private M8.GenericParams mBlobSpawnParms = new M8.GenericParams();
 	
-	private M8.CacheList<Blob> mBlobActives;
+	private M8.CacheList<Blob> mBlobActives = new M8.CacheList<Blob>(blobActiveCapacity);
 
 	private System.Text.StringBuilder mBlobNameCache = new System.Text.StringBuilder();
 
 	private Collider2D[] mColliderCache = new Collider2D[128];
+	
+	//Board Interface
+	
+	public IEnumerator PlayReady() {
+		if(takeReady != -1)
+			yield return animator.PlayWait(takeReady);
+		else
+			yield return null;
+
+		//TODO: callback ready (board hud initialize, animate enter)
+	}
+
+	public IEnumerator PlayDefeat() {
+		if(takeDefeat != -1)
+			yield return animator.PlayWait(takeDefeat);
+		else
+			yield return null;
+	}
+
+	public IEnumerator Attack() {
+
+		//decrement hp based on attack
+
+		//board hud animation
+
+		//hurt
+
+		//reset attack
+
+		yield return null;
+	}
+
+	//Blob Interface
 
 	public bool CheckAnyBlobActiveState(params Blob.State[] states) {
 		for(int i = 0; i < mBlobActives.Count; i++) {
@@ -124,14 +174,16 @@ public class BoardController : MonoBehaviour {
 		mBlobSpawnQueue.Clear();
 	}
 
-	public void Spawn(BlobData blobData, int number) {
-		mBlobSpawnQueue.Enqueue(new BlobSpawnInfo { data = blobData, number = number });
+	public void Spawn(BlobSpawnInfo spawnInfo) {
+		mBlobSpawnQueue.Enqueue(spawnInfo);
 		if(mBlobSpawnRout == null)
 			mBlobSpawnRout = StartCoroutine(DoSpawnQueue());
 	}
 
-	public void Spawn(BlobData blobData, string nameOverride, int number) {
-		mBlobSpawnQueue.Enqueue(new BlobSpawnInfo { nameOverride = nameOverride, data = blobData, number = number });
+	public void Spawn(BlobSpawnInfo[] spawnInfos) {
+		for(int i = 0; i < spawnInfos.Length; i++)
+			mBlobSpawnQueue.Enqueue(spawnInfos[i]);
+
 		if(mBlobSpawnRout == null)
 			mBlobSpawnRout = StartCoroutine(DoSpawnQueue());
 	}
@@ -141,7 +193,7 @@ public class BoardController : MonoBehaviour {
 			blob.poolData.despawnCallback -= OnBlobRelease;
 		}
 	}
-
+		
 	void OnDisable() {
 		SpawnStop();
 	}
@@ -156,9 +208,10 @@ public class BoardController : MonoBehaviour {
 			GameData.instance.InitBlobSpawnTypes(mBlobPool);
 		}
 
-		mBlobActives = new M8.CacheList<Blob>(blobActiveCapacity);
-
 		mBlobSpawnWait = new WaitForSeconds(GameData.instance.blobSpawnDelay);
+
+		mHitpointCurrent = hitpointMax;
+		mAttackCurrent = attackMax;
 	}
 
 	IEnumerator DoSpawnQueue() {
@@ -273,11 +326,11 @@ public class BoardController : MonoBehaviour {
 	}
 
 	private Vector2 GenerateBlobSpawnPoint(float blobRadius) {
-		return boardPosition + (Random.insideUnitCircle * (boardRadius - blobRadius));
+		return position + (Random.insideUnitCircle * (radius - blobRadius));
 	}
 
 	void OnDrawGizmos() {
 		Gizmos.color = Color.yellow;
-		Gizmos.DrawWireSphere(boardPosition, boardRadius);
+		Gizmos.DrawWireSphere(position, radius);
 	}
 }

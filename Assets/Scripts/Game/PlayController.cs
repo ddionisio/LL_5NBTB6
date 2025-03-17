@@ -5,10 +5,13 @@ using UnityEngine;
 using LoLExt;
 
 public class PlayController : GameModeController<PlayController> {
-
 	[Header("Controls")]
 	public BoardController boardControl;
 	public BlobConnectController connectControl;
+
+	[Header("Spawn Control")]
+	public BlobNumberGenBase numberGenNormal;
+	public BlobNumberGenBase numberGenFinal; //if not null, generated after mega blob hp <= 0 for last attack round
 
 	[Header("Music")]
 	[M8.MusicPlaylist]
@@ -25,6 +28,48 @@ public class PlayController : GameModeController<PlayController> {
 	protected override IEnumerator Start() {
 		yield return base.Start();
 
+		//intro
 
+		//board enter
+		yield return boardControl.PlayReady();
+
+		var isComplete = false;
+		var isFinal = false;
+		var numberGen = numberGenNormal;
+		var roundInd = 0;
+
+		while(!isComplete) {
+			yield return null;
+
+			var spawnInfos = numberGen.GenerateSpawnInfos(roundInd);
+
+			boardControl.Spawn(spawnInfos);
+
+			//wait for one blob remaining (this should be a quotient blob with the correct answer)
+			while(boardControl.isBlobSpawning || boardControl.blobSpawnQueueCount > 1)
+				yield return null;
+
+			//do attack
+			yield return boardControl.Attack();
+
+			//determine if we are finish, or there's one last attack needed
+			if(isFinal)
+				isComplete = true;
+			else if(boardControl.hitpoints <= 0) {
+				if(numberGenFinal) {
+					numberGen = numberGenFinal;
+					isFinal = true;
+				}
+				else
+					isComplete = true;
+			}
+
+			roundInd++;
+		}
+
+		//board defeat
+		yield return boardControl.PlayDefeat();
+
+		//victory
 	}
 }

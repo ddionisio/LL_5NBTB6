@@ -156,6 +156,8 @@ MonoBehaviour:
   signalModeChanged: {fileID: 11400000, guid: 4f9dce914f15a6c4b8c0af0d08028ac5, type: 2}
   boardControl: {fileID: 1346220083}
   connectControl: {fileID: 234534448}
+  numberGenNormal: {fileID: 0}
+  numberGenFinal: {fileID: 0}
   playMusic: 
 --- !u!4 &234534447
 Transform:
@@ -574,8 +576,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8ac3bc7626bc034a81a7a6ee0f6611a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardOriginOffset: {x: 0, y: 0}
-  boardRadius: 7.4
+  hitpointMax: 6
+  attackMax: 4
+  originOffset: {x: 0, y: 0}
+  radius: 7.4
+  animator: {fileID: 0}
+  takeReady: -1
+  takeHurt: -1
+  takeDefeat: -1
   blobPalette: {fileID: 11400000, guid: b35f694f177ceb8408ba3c4dc3e305a0, type: 2}
 --- !u!1 &1610060646
 GameObject:
