@@ -440,7 +440,7 @@ GameObject:
   - component: {fileID: 3239663618196281787}
   - component: {fileID: 4099996108613217303}
   m_Layer: 7
-  m_Name: blobQuotientMerged
+  m_Name: blobGoldMedium
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

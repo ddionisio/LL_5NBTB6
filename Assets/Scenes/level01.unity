@@ -156,7 +156,7 @@ MonoBehaviour:
   signalModeChanged: {fileID: 11400000, guid: 4f9dce914f15a6c4b8c0af0d08028ac5, type: 2}
   boardControl: {fileID: 1346220083}
   connectControl: {fileID: 234534448}
-  numberGenNormal: {fileID: 0}
+  numberGenNormal: {fileID: 1655055696}
   numberGenFinal: {fileID: 0}
   playMusic: 
 --- !u!4 &234534447
@@ -615,6 +615,65 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 642758501}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1655055695
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1655055697}
+  - component: {fileID: 1655055696}
+  m_Layer: 0
+  m_Name: numberGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1655055696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655055695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f74552dcabb3284b8c9471b2e7d5c59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  quotientResultCount: 1
+  firstPair:
+    dividend: 0
+    divisor: 0
+  firstPairEnabled: 0
+  rounds:
+  - roundPairs:
+    - dividend: 208
+      divisor: 2
+    - dividend: 248
+      divisor: 2
+    - dividend: 933
+      divisor: 3
+    - dividend: 621
+      divisor: 3
+--- !u!4 &1655055697
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655055695}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1853187110
@@ -1358,5 +1417,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1629874048099746159}
   - {fileID: 234534447}
+  - {fileID: 1655055697}
   - {fileID: 1346220082}
   - {fileID: 1610060647}

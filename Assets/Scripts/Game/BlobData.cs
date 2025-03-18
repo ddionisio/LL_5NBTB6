@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "blobTemplateData", menuName = "Game/Blob Template Data")]
+[CreateAssetMenu(fileName = "blobData", menuName = "Game/Blob Data")]
 public class BlobData : ScriptableObject {
     [Header("Pool Info")]
     [SerializeField]

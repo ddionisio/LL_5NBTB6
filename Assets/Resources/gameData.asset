@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 650800ed60807f44a876f1b9b339f4ba, type: 3}
   m_Name: gameData
   m_EditorClassIdentifier: 
-  blobDividend: {fileID: 0}
-  blobDivisor: {fileID: 0}
-  blobQuotient: {fileID: 0}
-  blobSpawnPoolCapacity: 16
+  blobDividend: {fileID: 11400000, guid: b4a9e5de4f7c08647adf602668c3c60b, type: 2}
+  blobDividendSplit: {fileID: 11400000, guid: 8f4ee0bb5968c384abefe52cd1c5be12, type: 2}
+  blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
+  blobQuotient: {fileID: 11400000, guid: c165b0b8cb5012b418b1bcb8855bb58f, type: 2}
+  blobQuotientMerged: {fileID: 11400000, guid: f5fe7606afee9924d97320605e883b88, type: 2}
   blobSpawnCheckMask:
     serializedVersion: 2
     m_Bits: 384

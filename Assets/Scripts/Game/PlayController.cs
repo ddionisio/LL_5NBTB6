@@ -45,8 +45,8 @@ public class PlayController : GameModeController<PlayController> {
 
 			boardControl.Spawn(spawnInfos);
 
-			//wait for one blob remaining (this should be a quotient blob with the correct answer)
-			while(boardControl.isBlobSpawning || boardControl.blobSpawnQueueCount > 1)
+			//wait for expected final quotient count based on number generator
+			while(boardControl.isBlobSpawning || boardControl.blobActiveCount > numberGen.quotientResultCount)
 				yield return null;
 
 			//do attack
