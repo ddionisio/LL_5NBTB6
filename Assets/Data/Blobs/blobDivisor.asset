@@ -14,3 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _template: {fileID: 7695177907930894477, guid: b91029513ba802d4d86deeb812e87d9a, type: 3}
   _capacity: 16
+  connectFilters:
+  - blobData: {fileID: 11400000, guid: b4a9e5de4f7c08647adf602668c3c60b, type: 2}
+    opType: 4
+  - blobData: {fileID: 11400000, guid: 8f4ee0bb5968c384abefe52cd1c5be12, type: 2}
+    opType: 4

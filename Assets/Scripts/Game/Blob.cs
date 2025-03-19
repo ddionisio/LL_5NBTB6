@@ -89,7 +89,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public SignalBlob signalInvokeDragEnd;
     public SignalBlob signalInvokeDespawn;
 
-    public BlobData blobData { get; private set; }
+    public BlobData data { get; private set; }
 
     public int number {
         get { return mNumber; }
@@ -108,8 +108,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public bool isDragging { get; private set; }
     public GameObject dragPointerGO { get; private set; } //current GameObject on pointer during drag
     public JellySpriteReferencePoint dragPointerJellySpriteRefPt { get; private set; } //current jelly sprite ref pt. on pointer during drag
+    public Blob dragPointerBlob { get; private set; } //blob that dragPointerGO/dragPointerJellySpriteRefPt is part of
 
-    public M8.PoolDataController poolData {
+	public M8.PoolDataController poolData {
         get {
             if(!mPoolDataCtrl)
                 mPoolDataCtrl = GetComponent<M8.PoolDataController>();
@@ -264,6 +265,13 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    public OperatorType GetConnectOpType(Blob otherBlob) {
+        if(!(data && otherBlob.data))
+            return OperatorType.None;
+
+        return data.GetConnectOpType(otherBlob.data);
+    }
+
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
             if(isDragging)
@@ -303,7 +311,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             mLastColor = jellySprite.m_Color;
         }
 
-        blobData = null;
+        data = null;
 		mNumber = 0;
         penaltyCounter = 0;
         mInputLocked = false;
@@ -322,7 +330,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             if(!spawnIgnoreColorParam && parms.ContainsKey(JellySpriteSpawnController.parmColor)) clr = parms.GetValue<Color>(JellySpriteSpawnController.parmColor);
 
             if(parms.ContainsKey(parmData))
-                blobData = parms.GetValue<BlobData>(parmData);
+                data = parms.GetValue<BlobData>(parmData);
 
             if(parms.ContainsKey(parmNumber))
                 mNumber = parms.GetValue<int>(parmNumber);
@@ -441,7 +449,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     IEnumerator DoSpawn() {
-        M8.SoundPlaylist.instance.Play(soundSpawn, false);
+        if(!string.IsNullOrEmpty(soundSpawn))
+            M8.SoundPlaylist.instance.Play(soundSpawn, false);
 
         if(takeSpawn != -1)
             yield return animator.PlayWait(takeSpawn);
@@ -609,15 +618,18 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             //update ref.
             if(dragPointerGO != prevDragPointerGO) {
                 dragPointerJellySpriteRefPt = dragPointerGO.GetComponent<JellySpriteReferencePoint>();
-            }
+                if(dragPointerJellySpriteRefPt && dragPointerJellySpriteRefPt.ParentJellySpriteGO)
+                    dragPointerBlob = dragPointerJellySpriteRefPt.ParentJellySpriteGO.GetComponent<Blob>();
+			}
 
             dragPoint = eventData.pointerCurrentRaycast.worldPosition;
         }
         else {
             dragPointerJellySpriteRefPt = null;
+            dragPointerBlob = null;
 
-            //grab point from main camera
-            dragPoint = GetWorldPoint(eventData.position);
+			//grab point from main camera
+			dragPoint = GetWorldPoint(eventData.position);
         }
     }
 
@@ -626,8 +638,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             //signal with no dragPointer
             dragPointerGO = null;
             dragPointerJellySpriteRefPt = null;
+			dragPointerBlob = null;
 
-            if(signalInvokeDragEnd)
+			if(signalInvokeDragEnd)
                 signalInvokeDragEnd.Invoke(this);
         }
 
@@ -639,9 +652,10 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         isDragging = false;
         dragPointerGO = null;
         dragPointerJellySpriteRefPt = null;
+		dragPointerBlob = null;
 
-        //hide display, etc.
-        RefreshMouthSprite();
+		//hide display, etc.
+		RefreshMouthSprite();
 
         if(state == State.Normal)
             ApplyJellySpriteMaterial(normalMaterial);

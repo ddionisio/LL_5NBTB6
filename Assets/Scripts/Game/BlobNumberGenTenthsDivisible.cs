@@ -32,9 +32,6 @@ public class BlobNumberGenTenthsDivisible : BlobNumberGenBase {
 		}
 	}
 
-	public NumberPair firstPair;
-	public bool firstPairEnabled;
-
 	public RoundData[] rounds;
 
 	private int mRoundInd;
@@ -42,6 +39,8 @@ public class BlobNumberGenTenthsDivisible : BlobNumberGenBase {
 	private BlobSpawnInfo[] mSpawnInfos;
 
 	public override BlobSpawnInfo[] GenerateSpawnInfos(int round) {
+		var gameDat = GameData.instance;
+
 		//get next pair
 		var roundClamped = Mathf.Clamp(round, 0, rounds.Length - 1);
 		if(mRoundInd != roundClamped) {
@@ -49,9 +48,7 @@ public class BlobNumberGenTenthsDivisible : BlobNumberGenBase {
 
 			rounds[mRoundInd].Init();
 		}
-
-		var gameDat = GameData.instance;
-
+				
 		var pair = rounds[mRoundInd].GetPair();
 
 		mSpawnInfos[0] = new BlobSpawnInfo { data = gameDat.blobDividend, number = pair.dividend };

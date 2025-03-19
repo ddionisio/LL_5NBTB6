@@ -209,7 +209,7 @@ public class BlobConnectController : MonoBehaviour {
     /// <summary>
     /// Current operator type when connecting two unlinked blob
     /// </summary>
-    public OperatorType curOp { get { return mCurOp; } set { mCurOp = value; } }
+    public OperatorType curOp { get { return mCurConnectDragging ? mCurConnectDragging.op : OperatorType.None; } }
 
     /// <summary>
     /// Grab the first element active group
@@ -223,8 +223,6 @@ public class BlobConnectController : MonoBehaviour {
     public event System.Action<Group> groupAddedCallback;
 
     private M8.PoolController mPool;
-
-    private OperatorType mCurOp = OperatorType.Multiply;
 
     private BlobConnect mCurConnectDragging; //when dragging a blob around.
         
@@ -391,8 +389,9 @@ public class BlobConnectController : MonoBehaviour {
         if(mCurConnectDragging) {
             if(curBlobDragging) {
                 //setup op
-                OperatorType dragOp = mCurOp;
+                var dragOp = OperatorType.None;
 
+                //check if blob is an operand of the group
                 if(curGroupDragging != null) {
                     if(curGroupDragging.IsBlobOp(curBlobDragging))
                         dragOp = OperatorType.Equal;
@@ -416,13 +415,16 @@ public class BlobConnectController : MonoBehaviour {
                     connectPtStart = curBlobDragging.transform.position;
 
                     //check if we are over another blob
-                    if(curBlobDragging.dragPointerJellySpriteRefPt) {
+                    var otherBlob = curBlobDragging.dragPointerBlob;
+					if(otherBlob) {
                         //check if it is in a group and we are setting it up as an equal connect
-                        var blobGO = curBlobDragging.dragPointerJellySpriteRefPt.ParentJellySpriteGO;
-                        var toGrp = GetGroup(blobGO);
+                        var toGrp = GetGroup(otherBlob);
                         if(toGrp != null && toGrp != curGroupDragging) {
-                            if(toGrp.IsBlobOp(blobGO))
+                            if(toGrp.IsBlobOp(otherBlob))
                                 dragOp = OperatorType.Equal;
+                        }
+                        else { //determine operator based on filter with other blob
+                            dragOp = curBlobDragging.GetConnectOpType(otherBlob);
                         }
 
                         //highlight the other connection
@@ -455,11 +457,7 @@ public class BlobConnectController : MonoBehaviour {
 
         curBlobDragging = blob;
 
-        var toOp = mCurOp;
-
-        //determine what the operator is based on blob's current connect state
-
-        mCurConnectDragging.op = toOp;
+        mCurConnectDragging.op = OperatorType.None;
         mCurConnectDragging.state = BlobConnect.State.Connecting;
 
         if(mCurConnectDragging.connectingSpriteRender)
@@ -485,14 +483,12 @@ public class BlobConnectController : MonoBehaviour {
         SetCurGroupDraggingOtherBlobHighlight(false);
 
         //determine if we can connect to a new blob
-        var blobRefPt = blob.dragPointerJellySpriteRefPt;
-        if(blobRefPt != null && blobRefPt.ParentJellySpriteGO != blob.gameObject) {
+        var endBlob = blob.dragPointerBlob;
+        if(endBlob && blob != endBlob) {
             Group evalGroup = null;
 
-            var endBlob = blobRefPt.ParentJellySpriteGO.GetComponent<Blob>();
-
             //determine op
-            var toOp = mCurOp;
+            var toOp = OperatorType.None;
 
             if(!endBlob.inputLocked) {
                 if(curGroupDragging != null) {
@@ -504,9 +500,9 @@ public class BlobConnectController : MonoBehaviour {
                             toOp = OperatorType.Equal;
                     }
                 }
+                else
+                    toOp = blob.GetConnectOpType(endBlob);
             }
-            else
-                toOp = OperatorType.None;
 
             //update link groups
             if(toOp != OperatorType.None) {

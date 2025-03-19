@@ -22,6 +22,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     }
 
     [Header("Body Display")]
+    public GameObject bodyRootGO;
     public GameObject bodyConnectedGO;
     public GameObject bodyConnectingGO;
     public SpriteRenderer connectingSpriteRender; //follow mouse pointer
@@ -53,18 +54,18 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
 
     [Header("Animation")]
     public M8.Animator.Animate animator;
-    [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeConnectingEnter;
-    [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeConnectingExit;
-    [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeConnectedEnter;
-    [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeConnectedExit;
-    [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeConnectedCorrect;
-    [M8.Animator.TakeSelector(animatorField = "animator")]
-    public string takeConnectedError;
+    [M8.Animator.TakeSelector]
+    public int takeConnectingEnter = -1;
+    [M8.Animator.TakeSelector]
+    public int takeConnectingExit = -1;
+    [M8.Animator.TakeSelector]
+    public int takeConnectedEnter = -1;
+    [M8.Animator.TakeSelector]
+    public int takeConnectedExit = -1;
+    [M8.Animator.TakeSelector]
+    public int takeConnectedCorrect = -1;
+    [M8.Animator.TakeSelector]
+    public int takeConnectedError = -1;
 
     [Header("Sfx")]
     [M8.SoundPlaylist]
@@ -96,8 +97,23 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
         get { return mOp; }
         set {
             if(mOp != value) {
+                var prevOp = mOp;
+
                 mOp = value;
                 ApplyCurOperator();
+
+                if(prevOp == OperatorType.None) {
+                    switch(mState) {
+                        case State.Connected:
+                            if(takeConnectedEnter != -1)
+                                animator.Play(takeConnectedEnter);
+                            break;
+                        case State.Connecting:
+                            if(takeConnectingEnter != -1)
+								animator.Play(takeConnectingEnter);
+							break;
+                    }
+                }
             }
         }
     }
@@ -122,8 +138,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     private SpringJoint2D mLinkBeginSpring;
     private SpringJoint2D mLinkEndSpring;
 
-    private State mState = State.None;
-    private OperatorType mOp = OperatorType.None;
+    private State mState;
+    private OperatorType mOp;
 
     private Camera mDragCamera;
     private Vector2 mDragToPos;
@@ -304,25 +320,21 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
 
         SpringRelease();
 
-        //this will reset display to nothing
-        mState = State.None;
-        ApplyCurState(State.None);
-    }
+		ResetToNone();
+	}
 
     void M8.IPoolSpawn.OnSpawned(M8.GenericParams parms) {
         if(!poolData) poolData = GetComponent<M8.PoolDataController>();
 
         if(body) body.bodyType = RigidbodyType2D.Dynamic;
 
-        var toState = State.None;
-        var toOp = OperatorType.None;
+		/*mOp = OperatorType.None;
+		ApplyCurOperator();
 
-        mState = toState;
-        ApplyCurState(State.None);
-
-        mOp = toOp;
-        ApplyCurOperator();
-    }
+		mState = State.None;
+        ApplyCurState(State.None);*/
+		ResetToNone();
+	}
 
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
@@ -335,12 +347,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     }
 
     void Awake() {
-        mState = State.None;
-        ApplyCurState(State.None);
-
-        mOp = OperatorType.None;
-        ApplyCurOperator();
-    }
+        ResetToNone();
+	}
 
     void Update() {
         if(mLinkBeginSpring)
@@ -426,6 +434,14 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
         if(state == State.Dragging)
             state = State.Connected;
     }
+
+    private void ResetToNone() {
+		mOp = OperatorType.None;
+		ApplyCurOperator();
+
+		mState = State.None;
+		ApplyCurState(State.None);
+	}
 
     private void UpdateDrag(PointerEventData eventData) {
         if(eventData.pointerCurrentRaycast.isValid)
@@ -557,10 +573,10 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 switch(prevState) {
                     case State.Connected:
                     case State.Dragging:
-                        mRout = StartCoroutine(DoAnimations(Release, takeConnectedExit));
+                        mRout = StartCoroutine(DoAnimation(Release, takeConnectedExit));
                         break;
                     case State.Connecting:
-                        mRout = StartCoroutine(DoAnimations(Release, takeConnectingExit));
+                        mRout = StartCoroutine(DoAnimation(Release, takeConnectingExit));
                         break;
                     default:
                         Release();
@@ -582,7 +598,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 HideConnectingDisplay();
                 if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
 
-                mRout = StartCoroutine(DoAnimations(Release, takeConnectedCorrect));
+                mRout = StartCoroutine(DoAnimation(Release, takeConnectedCorrect));
                 break;
 
             case State.Error:
@@ -599,7 +615,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 HideConnectingDisplay();
                 if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
 
-                mRout = StartCoroutine(DoAnimations(Release, takeConnectedError));
+                mRout = StartCoroutine(DoAnimation(Release, takeConnectedError));
                 break;
 
             case State.None:
@@ -626,19 +642,26 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     }
 
     private void ApplyCurOperator() {
-        for(int i = 0; i < operatorMultiplyGO.Length; i++) {
-            if(operatorMultiplyGO[i])
-                operatorMultiplyGO[i].SetActive(mOp == OperatorType.Multiply);
-        }
+        if(mOp == OperatorType.None) {
+            if(bodyRootGO) bodyRootGO.SetActive(false);
+		}
+        else {
+			if(bodyRootGO) bodyRootGO.SetActive(true);
 
-        for(int i = 0; i < operatorDivideGO.Length; i++) {
-            if(operatorDivideGO[i])
-                operatorDivideGO[i].SetActive(mOp == OperatorType.Divide);
-        }
+			for(int i = 0; i < operatorMultiplyGO.Length; i++) {
+                if(operatorMultiplyGO[i])
+                    operatorMultiplyGO[i].SetActive(mOp == OperatorType.Multiply);
+            }
 
-        for(int i = 0; i < operatorEqualGO.Length; i++) {
-            if(operatorEqualGO[i])
-                operatorEqualGO[i].SetActive(mOp == OperatorType.Equal);
+            for(int i = 0; i < operatorDivideGO.Length; i++) {
+                if(operatorDivideGO[i])
+                    operatorDivideGO[i].SetActive(mOp == OperatorType.Divide);
+            }
+
+            for(int i = 0; i < operatorEqualGO.Length; i++) {
+                if(operatorEqualGO[i])
+                    operatorEqualGO[i].SetActive(mOp == OperatorType.Equal);
+            }
         }
     }
 
@@ -661,7 +684,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     IEnumerator DoConnectedEnter(State prevState) {
         switch(prevState) {
             case State.Connecting:
-                if(animator && !string.IsNullOrEmpty(takeConnectingExit))
+                if(takeConnectingExit != -1)
                     yield return animator.PlayWait(takeConnectingExit);
 
                 HideConnectingDisplay();
@@ -670,7 +693,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
 
         if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
 
-        if(animator && !string.IsNullOrEmpty(takeConnectedEnter))
+        if(takeConnectedEnter != -1)
             yield return animator.PlayWait(takeConnectedEnter);
 
         if(selectGO) selectGO.SetActive(mIsPointerEnter);
@@ -682,7 +705,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
         switch(prevState) {
             case State.Connected:
             case State.Dragging:
-                if(animator && !string.IsNullOrEmpty(takeConnectedExit))
+                if(takeConnectedExit != -1)
                     yield return animator.PlayWait(takeConnectedExit);
 
                 HideConnectDisplay();
@@ -691,17 +714,17 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
 
         if(bodyConnectingGO) bodyConnectingGO.SetActive(true);
 
-        if(animator && !string.IsNullOrEmpty(takeConnectingEnter))
+        if(takeConnectingEnter != -1)
             yield return animator.PlayWait(takeConnectingEnter);
 
         mRout = null;
     }
 
-    IEnumerator DoAnimations(System.Action postCall, params string[] takes) {
-        for(int i = 0; i < takes.Length; i++) {
-            if(animator && !string.IsNullOrEmpty(takes[i]))
-                yield return animator.PlayWait(takes[i]);
-        }
+    IEnumerator DoAnimation(System.Action postCall, int take) {
+        if(take != -1)
+            yield return animator.PlayWait(take);
+        else
+            yield return null;
 
         mRout = null;
 

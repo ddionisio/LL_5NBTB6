@@ -17,12 +17,27 @@ public class PlayController : GameModeController<PlayController> {
 	[M8.MusicPlaylist]
 	public string playMusic;
 
+	[Header("Signal Listen")]
+	public SignalBlob signalListenBlobClick;
+	public SignalBlob signalListenBlobDragBegin;
+	public SignalBlob signalListenBlobDragEnd;
+
 	protected override void OnInstanceDeinit() {
+
+
+		if(signalListenBlobClick) signalListenBlobClick.callback -= OnSignalBlobClick;
+		if(signalListenBlobDragBegin) signalListenBlobDragBegin.callback -= OnSignalBlobDragBegin;
+		if(signalListenBlobDragEnd) signalListenBlobDragEnd.callback -= OnSignalBlobDragEnd;
+
 		base.OnInstanceDeinit();
 	}
 
 	protected override void OnInstanceInit() {
 		base.OnInstanceInit();
+
+		if(signalListenBlobClick) signalListenBlobClick.callback += OnSignalBlobClick;
+		if(signalListenBlobDragBegin) signalListenBlobDragBegin.callback += OnSignalBlobDragBegin;
+		if(signalListenBlobDragEnd) signalListenBlobDragEnd.callback += OnSignalBlobDragEnd;
 	}
 
 	protected override IEnumerator Start() {
@@ -71,5 +86,40 @@ public class PlayController : GameModeController<PlayController> {
 		yield return boardControl.PlayDefeat();
 
 		//victory
+	}
+
+	void OnSignalBlobClick(Blob blob) {
+	}
+
+	void OnSignalBlobDragBegin(Blob blob) {
+		if(connectControl.isDragDisabled)
+			return;
+
+		var blobActives = boardControl.blobActives;
+		for(int i = 0; i < blobActives.Count; i++) {
+			var blobActive = blobActives[i];
+			if(blobActive == blob)
+				continue;
+
+			if(blob.GetConnectOpType(blobActive) != OperatorType.None) {
+				blobActive.highlightLock = true;
+			}
+			else {
+				blobActive.inputLocked = true;
+			}
+		}
+	}
+
+	void OnSignalBlobDragEnd(Blob blob) {
+		if(connectControl.isDragDisabled)
+			return;
+
+		var blobActives = boardControl.blobActives;
+		for(int i = 0; i < blobActives.Count; i++) {
+			var blobActive = blobActives[i];
+
+			blobActive.highlightLock = false;
+			blobActive.inputLocked = false;
+		}
 	}
 }
