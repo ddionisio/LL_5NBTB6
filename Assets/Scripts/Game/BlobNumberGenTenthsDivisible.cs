@@ -32,11 +32,19 @@ public class BlobNumberGenTenthsDivisible : BlobNumberGenBase {
 		}
 	}
 
+	public BlobData blobDividend;
+	public BlobData blobDivisor;
+
 	public RoundData[] rounds;
 
 	private int mRoundInd;
 
 	private BlobSpawnInfo[] mSpawnInfos;
+
+	public override void InitBlobPoolTypes(M8.PoolController blobPool) {
+		blobDividend.InitPool(blobPool);
+		blobDivisor.InitPool(blobPool);
+	}
 
 	public override BlobSpawnInfo[] GenerateSpawnInfos(int round) {
 		var gameDat = GameData.instance;
@@ -51,10 +59,18 @@ public class BlobNumberGenTenthsDivisible : BlobNumberGenBase {
 				
 		var pair = rounds[mRoundInd].GetPair();
 
-		mSpawnInfos[0] = new BlobSpawnInfo { data = gameDat.blobDividend, number = pair.dividend };
-		mSpawnInfos[1] = new BlobSpawnInfo { data = gameDat.blobDivisor, number = pair.divisor };
+		mSpawnInfos[0] = new BlobSpawnInfo { data = blobDividend, number = pair.dividend };
+		mSpawnInfos[1] = new BlobSpawnInfo { data = blobDivisor, number = pair.divisor };
 
 		return mSpawnInfos;
+	}
+
+	public override bool CanSplit(Blob blob, int divisor) {
+		return false;
+	}
+
+	public override void Split(Blob blob, int divisor) {
+
 	}
 
 	void Awake() {

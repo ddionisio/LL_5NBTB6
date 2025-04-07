@@ -22,6 +22,8 @@ public class PlayController : GameModeController<PlayController> {
 	public SignalBlob signalListenBlobDragBegin;
 	public SignalBlob signalListenBlobDragEnd;
 
+	private BlobNumberGenBase mCurNumberGen;
+
 	protected override void OnInstanceDeinit() {
 
 
@@ -34,6 +36,15 @@ public class PlayController : GameModeController<PlayController> {
 
 	protected override void OnInstanceInit() {
 		base.OnInstanceInit();
+
+		var gameDat = GameData.instance;
+
+		//initialize blob pools
+		boardControl.InitBlobPool();
+
+		if(numberGenNormal) numberGenNormal.InitBlobPoolTypes(boardControl.blobPool);
+		if(numberGenFinal) numberGenFinal.InitBlobPoolTypes(boardControl.blobPool);
+
 
 		if(signalListenBlobClick) signalListenBlobClick.callback += OnSignalBlobClick;
 		if(signalListenBlobDragBegin) signalListenBlobDragBegin.callback += OnSignalBlobDragBegin;
@@ -50,18 +61,19 @@ public class PlayController : GameModeController<PlayController> {
 
 		var isComplete = false;
 		var isFinal = false;
-		var numberGen = numberGenNormal;
 		var roundInd = 0;
+
+		mCurNumberGen = numberGenNormal;
 
 		while(!isComplete) {
 			yield return null;
 
-			var spawnInfos = numberGen.GenerateSpawnInfos(roundInd);
+			var spawnInfos = mCurNumberGen.GenerateSpawnInfos(roundInd);
 
 			boardControl.Spawn(spawnInfos);
 
 			//wait for expected final quotient count based on number generator
-			while(boardControl.isBlobSpawning || boardControl.blobActiveCount > numberGen.quotientResultCount)
+			while(boardControl.isBlobSpawning || boardControl.blobActiveCount > mCurNumberGen.quotientResultCount)
 				yield return null;
 
 			//do attack
@@ -72,7 +84,7 @@ public class PlayController : GameModeController<PlayController> {
 				isComplete = true;
 			else if(boardControl.hitpoints <= 0) {
 				if(numberGenFinal) {
-					numberGen = numberGenFinal;
+					mCurNumberGen = numberGenFinal;
 					isFinal = true;
 				}
 				else

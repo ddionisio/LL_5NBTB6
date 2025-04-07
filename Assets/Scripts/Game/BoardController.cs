@@ -35,6 +35,8 @@ public class BoardController : MonoBehaviour {
 
 	public int attack { get { return mAttackCurrent; } }
 
+	public M8.PoolController blobPool { get; private set; }
+
 	public int blobSpawnQueueCount { get { return mBlobSpawnQueue.Count; } }
 
 	public Queue<BlobSpawnInfo> blobSpawnQueue { get { return mBlobSpawnQueue; } }
@@ -47,8 +49,6 @@ public class BoardController : MonoBehaviour {
 
 	private int mHitpointCurrent;
 	private int mAttackCurrent;
-
-	private M8.PoolController mBlobPool;
 
 	private WaitForSeconds mBlobSpawnWait;
 
@@ -98,6 +98,14 @@ public class BoardController : MonoBehaviour {
 	}
 
 	//Blob Interface
+
+	public void InitBlobPool() {
+		blobPool = M8.PoolController.GetPool(blobSpawnPoolGroup);
+		if(!blobPool) {
+			blobPool = M8.PoolController.CreatePool(blobSpawnPoolGroup);
+			blobPool.gameObject.DontDestroyOnLoad();
+		}
+	}
 
 	public bool CheckAnyBlobActiveState(params Blob.State[] states) {
 		for(int i = 0; i < mBlobActives.Count; i++) {
@@ -199,15 +207,6 @@ public class BoardController : MonoBehaviour {
 	}
 
 	void Awake() {
-		//initialize pool
-		mBlobPool = M8.PoolController.GetPool(blobSpawnPoolGroup);
-		if(!mBlobPool) {
-			mBlobPool = M8.PoolController.CreatePool(blobSpawnPoolGroup);
-			mBlobPool.gameObject.DontDestroyOnLoad();
-
-			GameData.instance.InitBlobSpawnTypes(mBlobPool);
-		}
-
 		mBlobSpawnWait = new WaitForSeconds(GameData.instance.blobSpawnDelay);
 
 		mHitpointCurrent = hitpointMax;
@@ -303,7 +302,7 @@ public class BoardController : MonoBehaviour {
 			else
 				blobName = spawnInfo.nameOverride;
 
-			var blob = mBlobPool.Spawn<Blob>(templateName, blobName, null, mBlobSpawnParms);
+			var blob = blobPool.Spawn<Blob>(templateName, blobName, null, mBlobSpawnParms);
 
 			blob.poolData.despawnCallback += OnBlobRelease;
 

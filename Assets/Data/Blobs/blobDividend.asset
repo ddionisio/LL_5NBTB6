@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59dbb0ae4553a4e42a043704d39fbb6b, type: 3}
   m_Name: blobDividend
   m_EditorClassIdentifier: 
+  _type: 0
+  _splitMode: 0
+  _splitBlobData: {fileID: 11400000, guid: 8f4ee0bb5968c384abefe52cd1c5be12, type: 2}
+  _mergeBlobData: {fileID: 0}
   _template: {fileID: 197379733306875679, guid: 171a3e8044e916b4bb30cee41c8a0d89, type: 3}
   _capacity: 2
-  connectFilters:
-  - blobData: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
-    opType: 4
