@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59dbb0ae4553a4e42a043704d39fbb6b, type: 3}
-  m_Name: blobDividendSplit
+  m_Name: blobDividend_TenthsDivide
   m_EditorClassIdentifier: 
-  _template: {fileID: 3969031911029548912, guid: 7dbecb324b8baf44080c7fc60745d893, type: 3}
-  _capacity: 16
-  connectFilters:
-  - blobData: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
-    opType: 4
+  _type: 0
+  _splitMode: 1
+  _splitBlobData: {fileID: 11400000, guid: 62cd68a6ec00bb244b3d65ea310fc726, type: 2}
+  _mergeBlobData: {fileID: 0}
+  _template: {fileID: 197379733306875679, guid: 171a3e8044e916b4bb30cee41c8a0d89, type: 3}
+  _capacity: 2
+  _palette: {fileID: 11400000, guid: b35f694f177ceb8408ba3c4dc3e305a0, type: 2}

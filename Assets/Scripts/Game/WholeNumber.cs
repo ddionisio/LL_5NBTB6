@@ -45,6 +45,19 @@ public struct WholeNumber {
         return count;
     }
 
+    public static int NonZeroDigitCount(int number) {
+        int count = 0;
+
+        while(number > 0) {
+            if(number % 10 != 0)
+                count++;
+
+            number /= 10;
+        }
+
+        return count;
+    }
+
     public static int ZeroCount(int number) {
         int count = 0;
         for(int numStep = number; numStep % 10 == 0; count++)

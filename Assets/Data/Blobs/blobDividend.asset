@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 0
   _splitMode: 0
-  _splitBlobData: {fileID: 11400000, guid: 8f4ee0bb5968c384abefe52cd1c5be12, type: 2}
+  _splitBlobData: {fileID: 0}
   _mergeBlobData: {fileID: 0}
-  _template: {fileID: 197379733306875679, guid: 171a3e8044e916b4bb30cee41c8a0d89, type: 3}
-  _capacity: 2
+  _template: {fileID: 8425779892372338503, guid: 7dbecb324b8baf44080c7fc60745d893, type: 3}
+  _capacity: 8
+  _palette: {fileID: 11400000, guid: b35f694f177ceb8408ba3c4dc3e305a0, type: 2}

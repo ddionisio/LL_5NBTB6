@@ -12,7 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73fba05c719519b4db251fead2709c54, type: 3}
   m_Name: soundPlaylist
   m_EditorClassIdentifier: 
-  sounds: []
+  sounds:
+  - name: click
+    clip: {fileID: 8300000, guid: 9d18778d72ce9114e9bd29337e518944, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: boop
+    clip: {fileID: 0}
+    clipVariants:
+    - {fileID: 8300000, guid: 3f33f2c107cb5b54faa5cc821ba7f71b, type: 3}
+    - {fileID: 8300000, guid: bd7a3140c005c9048bbebe6519eb7d45, type: 3}
+    - {fileID: 8300000, guid: 358a5089757a692449f3849b054b8e0c, type: 3}
+    - {fileID: 8300000, guid: 0a0e6a27f0058f843a5c6b091f4f2c38, type: 3}
+    spatialBlend: 0
   max: 32
   audioMixer: {fileID: 0}
   muteOnFocusLost: 1

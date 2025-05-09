@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59dbb0ae4553a4e42a043704d39fbb6b, type: 3}
   m_Name: blobDivisor
   m_EditorClassIdentifier: 
+  _type: 1
+  _splitMode: 0
+  _splitBlobData: {fileID: 0}
+  _mergeBlobData: {fileID: 11400000, guid: c165b0b8cb5012b418b1bcb8855bb58f, type: 2}
   _template: {fileID: 7695177907930894477, guid: b91029513ba802d4d86deeb812e87d9a, type: 3}
   _capacity: 16
-  connectFilters:
-  - blobData: {fileID: 11400000, guid: b4a9e5de4f7c08647adf602668c3c60b, type: 2}
-    opType: 4
-  - blobData: {fileID: 11400000, guid: 8f4ee0bb5968c384abefe52cd1c5be12, type: 2}
-    opType: 4
+  _palette: {fileID: 11400000, guid: e132cba04da00044ea187180e3d458ff, type: 2}

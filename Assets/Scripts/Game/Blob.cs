@@ -11,10 +11,13 @@ using TMPro;
 public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public const string parmData = "dat";
     public const string parmNumber = "number";
+    public const string parmState = "state";
+    public const string parmDivisor = "divisor";
 
     public enum State {
         None,
         Normal,
+        Solved, //special material, no input, ready for 'correct' state
         Spawning, //animate and set to normal
         Despawning, //animate and release
         Error, //error highlight for a bit
@@ -43,14 +46,18 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public Sprite mouthSpriteError;
     public Sprite mouthSpriteCorrect;
 
-    [Header("Highlight Info")]
+    [Header("Material States")]
     public Material normalMaterial;
-    public Material hoverDragMaterial;
+	public Material solvedMaterial;
+	public Material hoverDragMaterial;
     public Material errorMaterial;
     public Material correctMaterial;
 
     [Header("Error Settings")]
     public float errorDuration = 1f;
+
+    [Header("Solved Settings")]
+    public GameObject solvedActiveGO;
 
     [Header("Correct Settings")]
     public float correctStartDelay = 0.5f;
@@ -63,6 +70,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     [Header("Highlight Display")]
     public GameObject highlightGO; //active during enter and dragging
     public GameObject highlightLockGO; //active if isHighlightLock is true
+    public GameObject highlightSplitGO; //active if splittable
 
     [Header("UI")]    
     public TMP_Text numericText;
@@ -91,6 +99,15 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     public BlobData data { get; private set; }
 
+    public Vector2 position {
+        get {
+            if(jellySprite && jellySprite.CentralPoint != null && jellySprite.CentralPoint.transform)
+                return jellySprite.CentralPoint.transform.position;
+
+            return transform.position;
+		}
+    }
+
     public int number {
         get { return mNumber; }
         set {
@@ -100,6 +117,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             }
         }
     }
+
+    public int divisor { get; private set; } //this is used for checking if this blob is divisible, 0 if not a dividend
 
     public int penaltyCounter { get; set; }
 
@@ -184,6 +203,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    public bool canSplit {
+        get {
+            return divisor > 0 && data.CanSplit(mNumber, divisor);
+		}
+    }
+
     private int mNumber;
 
     private M8.PoolDataController mPoolDataCtrl;
@@ -207,6 +232,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     private Sprite mLastSprite;
     private Color mLastColor;
+
+    private State mSpawnToState;
 
     /// <summary>
     /// Get an approximate edge towards given point, relies on reference points to provide edge.
@@ -272,6 +299,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         return data.GetConnectOpType(otherBlob.data);
     }
 
+    public void AddForce(Vector2 force, ForceMode2D mode) {
+        if(jellySprite.CentralPoint != null && jellySprite.CentralPoint.Body2D) {
+            jellySprite.CentralPoint.Body2D.AddForce(force, mode);
+		}
+    }
+
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
             if(isDragging)
@@ -320,7 +353,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         Sprite spr = mLastSprite;
         Color clr = mLastColor;
 
-        Vector2 pos = Vector2.zero;
+        mSpawnToState = State.Normal;
+
+		Vector2 pos = Vector2.zero;
         float rot = 0f;
 
         if(parms != null) {
@@ -334,6 +369,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
             if(parms.ContainsKey(parmNumber))
                 mNumber = parms.GetValue<int>(parmNumber);
+
+            if(parms.ContainsKey(parmState)) {
+                var toState = parms.GetValue<State>(parmState);
+                if(toState != State.None)
+                    mSpawnToState = toState;
+			}
         }
 
         bool isInit = jellySprite.CentralPoint != null;
@@ -398,7 +439,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 ApplyJellySpriteMaterial(hoverDragMaterial);
 
             if(highlightGO) highlightGO.SetActive(true);
-        }
+
+            if(highlightSplitGO) highlightSplitGO.SetActive(canSplit);
+		}
     }
 
     public void OnPointerExit(JellySprite jellySprite, int index, PointerEventData eventData) {
@@ -413,7 +456,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 ApplyJellySpriteMaterial(normalMaterial);
 
             if(highlightGO) highlightGO.SetActive(false);
-        }
+            if(highlightSplitGO) highlightSplitGO.SetActive(false);
+		}
     }
 
     public void OnDragBegin(JellySprite jellySprite, int index, PointerEventData eventData) {
@@ -459,7 +503,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         mRout = null;
 
-        state = State.Normal;
+        state = mSpawnToState;
 
         //impulse center
         var centerDir = M8.MathUtil.RotateAngle(Vector2.up, Random.Range(0f, 360f));
@@ -545,7 +589,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         Sprite spr;
                 
         switch(mState) {
-            case State.Correct:
+			case State.Solved:
+			case State.Correct:            
                 spr = mouthSpriteCorrect;
                 break;
 
@@ -696,7 +741,15 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 SetEyeBlinking(true);
                 break;
 
-            case State.Spawning:
+            case State.Solved:
+                ApplyJellySpriteMaterial(solvedMaterial);
+                SetEyeBlinking(true);
+
+				mInputLockedInternal = true;
+				ApplyInputLocked();
+				break;
+
+			case State.Spawning:
                 SetEyeBlinking(false);
                 //animate, and then set state to normal
                 mRout = StartCoroutine(DoSpawn());
@@ -730,7 +783,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 break;
         }
 
-        if(highlightGO) highlightGO.SetActive(false);
+        if(solvedActiveGO) solvedActiveGO.SetActive(mState == State.Solved);
+
+		if(highlightGO) highlightGO.SetActive(false);
         mIsHighlight = false;
 
         if(highlightLockGO) highlightLockGO.SetActive(false);

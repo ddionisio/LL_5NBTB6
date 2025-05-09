@@ -6,10 +6,6 @@ public class BoardController : MonoBehaviour {
 	public const string blobSpawnPoolGroup = "blobs";
 	public const int blobActiveCapacity = 128;
 
-	[Header("Board Data")]
-	public int hitpointMax = 5;
-	public int attackMax = 4;
-
 	[Header("Board Telemetry")]
 	public Vector2 originOffset;
 	public float radius;
@@ -24,16 +20,9 @@ public class BoardController : MonoBehaviour {
 	[M8.Animator.TakeSelector]
 	public int takeDefeat = -1;
 
-	[Header("Blob")]
-	public M8.ColorPalette blobPalette;
-
 	public Vector2 position {
 		get { return ((Vector2)transform.position) + originOffset; }
 	}
-
-	public int hitpoints { get { return mHitpointCurrent; } }
-
-	public int attack { get { return mAttackCurrent; } }
 
 	public M8.PoolController blobPool { get; private set; }
 
@@ -47,13 +36,7 @@ public class BoardController : MonoBehaviour {
 
 	public int blobActiveCount { get { return mBlobActives.Count; } }
 
-	private int mHitpointCurrent;
-	private int mAttackCurrent;
-
 	private WaitForSeconds mBlobSpawnWait;
-
-	private int[] mBlobPaletteIndices;
-	private int mBlobPaletteCurrentInd;
 
 	private Queue<BlobSpawnInfo> mBlobSpawnQueue = new Queue<BlobSpawnInfo>(blobActiveCapacity);
 	private Coroutine mBlobSpawnRout;
@@ -139,6 +122,27 @@ public class BoardController : MonoBehaviour {
 		return count;
 	}
 
+	/// <summary>
+	/// Find a blob that can divide given dividend as a whole number.
+	/// </summary>
+	public Blob GetBlobDivisor(int dividend) {
+		if(mBlobActives == null)
+			return null;
+
+		for(int i = 0; i < mBlobActives.Count; i++) {
+			var blob = mBlobActives[i];
+			if(!blob || blob.data.type != BlobData.Type.Divisor)
+				continue;
+
+			var divisorVal = blob.number;
+
+			if(dividend % divisorVal == 0)
+				return blob;
+		}
+
+		return null;
+	}
+
 	public Blob GetBlobActiveByName(string blobName) {
 		if(mBlobActives == null)
 			return null;
@@ -208,9 +212,6 @@ public class BoardController : MonoBehaviour {
 
 	void Awake() {
 		mBlobSpawnWait = new WaitForSeconds(GameData.instance.blobSpawnDelay);
-
-		mHitpointCurrent = hitpointMax;
-		mAttackCurrent = attackMax;
 	}
 
 	IEnumerator DoSpawnQueue() {
@@ -228,7 +229,7 @@ public class BoardController : MonoBehaviour {
 
 			//get spawn point, and clear out other blobs within spawn area
 			var checkRadius = blobDat.spawnPointCheckRadius;
-			Vector2 spawnPt = GenerateBlobSpawnPoint(checkRadius);
+			var spawnPt = spawnInfo.isSpawnPointOverride ? spawnInfo.spawnPointOverride : GenerateBlobSpawnPoint(checkRadius);
 
 			var curTime = 0f;
 			while(curTime < gameDat.blobSpawnClearoutDelay) {
@@ -262,33 +263,16 @@ public class BoardController : MonoBehaviour {
 				curTime += Time.deltaTime;
 			}
 
-			//setup color
-			if(blobPalette && blobPalette.count > 0) {
-				Color spawnColor;
-
-				if(mBlobPaletteIndices == null) { //init
-					mBlobPaletteIndices = new int[blobPalette.count];
-					for(int i = 0; i < mBlobPaletteIndices.Length; i++)
-						mBlobPaletteIndices[i] = i;
-					M8.ArrayUtil.Shuffle(mBlobPaletteIndices);
-				}
-
-				spawnColor = blobPalette.GetColor(mBlobPaletteIndices[mBlobPaletteCurrentInd]);
-
-				mBlobPaletteCurrentInd++;
-				if(mBlobPaletteCurrentInd == mBlobPaletteIndices.Length)
-					mBlobPaletteCurrentInd = 0;
-
-				mBlobSpawnParms[JellySpriteSpawnController.parmColor] = spawnColor;
-			}
-
 			//spawn
 			var templateName = blobDat.templateName;
 
 			mBlobSpawnParms[JellySpriteSpawnController.parmPosition] = spawnPt;
 			mBlobSpawnParms[Blob.parmData] = blobDat;
+			mBlobSpawnParms[JellySpriteSpawnController.parmColor] = blobDat.color;
 			mBlobSpawnParms[Blob.parmNumber] = spawnInfo.number;
-						
+			mBlobSpawnParms[Blob.parmDivisor] = spawnInfo.divisor;
+			mBlobSpawnParms[Blob.parmState] = spawnInfo.spawnToState != Blob.State.None ? spawnInfo.spawnToState : Blob.State.Normal;
+
 			string blobName;
 
 			if(string.IsNullOrEmpty(spawnInfo.nameOverride)) {

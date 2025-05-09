@@ -156,12 +156,18 @@ MonoBehaviour:
   signalModeChanged: {fileID: 11400000, guid: 4f9dce914f15a6c4b8c0af0d08028ac5, type: 2}
   boardControl: {fileID: 1346220083}
   connectControl: {fileID: 234534448}
-  numberGenNormal: {fileID: 1655055696}
-  numberGenFinal: {fileID: 0}
+  numberGens: []
   playMusic: 
+  signalInvokeStart: {fileID: 0}
+  signalInvokeNewRound: {fileID: 0}
+  signalInvokeAttack: {fileID: 0}
+  signalInvokeOpRefresh: {fileID: 0}
+  signalInvokeAttackValueRefresh: {fileID: 0}
   signalListenBlobClick: {fileID: 11400000, guid: 472fce4ec1d549849bd83078d05b26dd, type: 2}
   signalListenBlobDragBegin: {fileID: 11400000, guid: 0dd1c40d5bbeef54a8aaf4b6c89d5235, type: 2}
   signalListenBlobDragEnd: {fileID: 11400000, guid: e277b755729c85042a3893c829311846, type: 2}
+  signalListenOperation: {fileID: 0}
+  signalListenSplit: {fileID: 0}
 --- !u!4 &234534447
 Transform:
   m_ObjectHideFlags: 0
@@ -636,8 +642,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8ac3bc7626bc034a81a7a6ee0f6611a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitpointMax: 6
-  attackMax: 4
   originOffset: {x: 0, y: 0}
   radius: 7.4
   animator: {fileID: 0}
@@ -688,7 +692,7 @@ GameObject:
   - component: {fileID: 1655055697}
   - component: {fileID: 1655055696}
   m_Layer: 0
-  m_Name: numberGenerator
+  m_Name: tenthsDivisible
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -706,20 +710,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f74552dcabb3284b8c9471b2e7d5c59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rounds: 1
   quotientResultCount: 1
-  rounds:
-  - roundPairs:
-    - dividend: 416
-      divisor: 2
-  - roundPairs:
-    - dividend: 208
-      divisor: 2
-    - dividend: 248
-      divisor: 2
-    - dividend: 933
-      divisor: 3
-    - dividend: 621
-      divisor: 3
+  blobDividend: {fileID: 11400000, guid: ec5aa06a2c2a27c45ac6a032e88f443d, type: 2}
+  blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
+  numberPairs: []
 --- !u!4 &1655055697
 Transform:
   m_ObjectHideFlags: 0
@@ -728,12 +723,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1655055695}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1975695601}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1853187110
 GameObject:
@@ -769,6 +764,38 @@ Transform:
   - {fileID: 1095537678}
   - {fileID: 716562487}
   m_Father: {fileID: 1346220082}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1975695600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1975695601}
+  m_Layer: 0
+  m_Name: numberGenerators
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1975695601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1975695600}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1655055697}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1984602158
 GameObject:
@@ -1476,7 +1503,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 1629874048099746159}
   - {fileID: 234534447}
-  - {fileID: 1655055697}
+  - {fileID: 1975695601}
   - {fileID: 1346220082}
   - {fileID: 1610060647}
   - {fileID: 559924472}

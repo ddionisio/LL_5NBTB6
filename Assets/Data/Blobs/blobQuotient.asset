@@ -12,5 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59dbb0ae4553a4e42a043704d39fbb6b, type: 3}
   m_Name: blobQuotient
   m_EditorClassIdentifier: 
+  _type: 2
+  _splitMode: 0
+  _splitBlobData: {fileID: 0}
+  _mergeBlobData: {fileID: 11400000, guid: f5fe7606afee9924d97320605e883b88, type: 2}
   _template: {fileID: 7695177907930894477, guid: 7869739b636239343a39ccdc94d78ab8, type: 3}
-  _capacity: 16
+  _capacity: 8
+  _palette: {fileID: 11400000, guid: e4c821f55d214c64b8112412e95a5c81, type: 2}
