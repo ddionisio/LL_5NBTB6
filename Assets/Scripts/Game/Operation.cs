@@ -58,4 +58,22 @@ public struct Operation {
             }
         }
     }
+
+    public string opText { get { return GetOperatorTypeString(op); } }
+
+    /// <summary>
+    /// Return operation as a string, e.g. "1 + 2 ="
+    /// </summary>
+    public string GetUnsolvedString() {
+        var sb = new System.Text.StringBuilder();
+
+        sb.Append(operand1);
+        sb.Append(' ');
+        sb.Append(GetOperatorTypeChar(op));
+        sb.Append(' ');
+		sb.Append(operand2);
+		sb.Append(" =");
+
+        return sb.ToString();
+	}
 }

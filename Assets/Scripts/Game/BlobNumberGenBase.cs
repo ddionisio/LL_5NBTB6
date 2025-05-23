@@ -44,6 +44,7 @@ public abstract class BlobNumberGenBase : MonoBehaviour {
 
 	protected void ClearOps() {
 		mOps.Clear();
+		mOpsIsSolved.Clear();
 	}
 
 	protected void AddOp(int left, int right, OperatorType type) {

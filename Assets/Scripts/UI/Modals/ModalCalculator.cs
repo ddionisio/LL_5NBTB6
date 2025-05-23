@@ -12,6 +12,7 @@ public class ModalCalculator : M8.ModalController, M8.IModalPush, M8.IModalPop, 
     public const string parmInitValue = "initialValue";
     public const string parmMaxDigit = "maxDigit";
     public const string parmKeyboardFlags = "keyboardFlags";
+    public const string parmInputActive = "inpActive";
 
     [System.Flags]
     public enum InputKeyboardFlag {
@@ -82,6 +83,10 @@ public class ModalCalculator : M8.ModalController, M8.IModalPush, M8.IModalPop, 
 
     public float curValueFloat { get { return (float)mCurValue; } }
 
+    public int maxDigits { get { return mMaxDigits; } set { SetMaxDigit(value); } }
+
+    public int defaultMaxDigits { get { return _defaultMaxDigits; } }
+
     public bool inputActive {
         get { return mInputActive; }
         set {
@@ -135,7 +140,40 @@ public class ModalCalculator : M8.ModalController, M8.IModalPush, M8.IModalPop, 
         UpdateCurrentValueFromInput();
     }
 
-    public void InputNumber(int num) {        
+    public void SetMaxDigit(int newMaxDigit) {
+        if(newMaxDigit < 1) //digit should at least be 1!
+			newMaxDigit = 1;
+
+        if(mMaxDigits != newMaxDigit) {
+            mMaxDigits = newMaxDigit;
+
+            //reduce digit if too high
+            double tenths = 1.0;
+            for(int i = 0; i < mMaxDigits; i++)
+                tenths *= 10.0;
+
+            var newDigit = mCurValue;
+            while(newDigit > tenths)
+                newDigit -= tenths;
+
+            if(mCurValue != newDigit)
+			    ApplyCurrentValue(newDigit);
+		}
+    }
+
+	public void SetMaxDigit(int newMaxDigit, double newValue) {
+		if(newMaxDigit < 1) //digit should at least be 1!
+			newMaxDigit = 1;
+
+		if(mMaxDigits != newMaxDigit) {
+			mMaxDigits = newMaxDigit;
+
+			if(mCurValue != newValue)
+				ApplyCurrentValue(newValue);
+		}
+	}
+
+	public void InputNumber(int num) {        
         //don't add if we are already at limit
         int count = mCurInput.Length;
         if(count == 1 && mCurInput[0] == '0') {
@@ -263,6 +301,8 @@ public class ModalCalculator : M8.ModalController, M8.IModalPush, M8.IModalPop, 
     void M8.IModalPush.Push(M8.GenericParams parms) {
         double val = 0;
 
+        mInputActive = true;
+
         if(parms != null) {
             if(parms.ContainsKey(parmInitValue)) {
                 object obj = parms.GetValue<object>(parmInitValue);
@@ -289,9 +329,12 @@ public class ModalCalculator : M8.ModalController, M8.IModalPush, M8.IModalPop, 
             }
             else
                 mInputKeyboardFlags = _inputKeyboardFlags;
+
+            if(parms.ContainsKey(parmInputActive))
+                mInputActive = parms.GetValue<bool>(parmInputActive);
         }
 
-        inputActive = true;
+        ApplyInputActive();
 
 		SetCurrentValue(val);
 

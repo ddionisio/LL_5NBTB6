@@ -31,7 +31,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     [Header("Operator Display")]
     public GameObject[] operatorMultiplyGO;
     public GameObject[] operatorDivideGO;
-    public GameObject[] operatorEqualGO;
+	public GameObject[] operatorAddGO;
+	public GameObject[] operatorEqualGO;
 
     [Header("Link Display")]
     public SpriteRenderer linkBeginSpriteRender;
@@ -656,6 +657,11 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
             for(int i = 0; i < operatorDivideGO.Length; i++) {
                 if(operatorDivideGO[i])
                     operatorDivideGO[i].SetActive(mOp == OperatorType.Divide);
+            }
+
+            for(int i = 0; i < operatorAddGO.Length; i++) {
+                if(operatorAddGO[i])
+                    operatorAddGO[i].SetActive(mOp == OperatorType.Add);
             }
 
             for(int i = 0; i < operatorEqualGO.Length; i++) {

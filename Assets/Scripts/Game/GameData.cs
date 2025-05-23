@@ -10,9 +10,9 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 	public enum LevelMode {
 		None,
 
-		Intro,
+		Intro, //play going to level
 		Play,
-		End
+		Next //defeat of previous blob
 	}
 
 	[Serializable]
@@ -24,14 +24,78 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 
 	[Serializable]
 	public struct LevelData {
-		public M8.SceneAssetPath sceneInterlude;
 		public M8.SceneAssetPath scenePlay;
-		public int progressCount; //corresponds to number of rounds in PlayController, ensure it matches!
+		public LevelMode mode;
+		public int playIndex; //set to -1 if no state
+		public int progressCount; //corresponds to number generator count in PlayController, ensure it matches!
+
+		public bool isLevel { get { return mode == LevelMode.Play && playIndex != -1; } }
+	}
+
+	public struct LevelStats {
+		public int attackCount;
+		public int mistakeCount;
+		public float effectiveScale;
+
+		public int scoreMax {
+			get {
+				return instance.scorePerRound + instance.scoreNoMistake;
+			}
+		}
+
+		public int score {
+			get {
+				var ret = Mathf.RoundToInt(effectiveScale * instance.scorePerRound);
+
+				if(mistakeCount == 0)
+					ret += instance.scoreNoMistake;
+
+				return ret;
+			}
+		}
+
+		public float scoreScale {
+			get { return Mathf.Clamp01((float)score / scoreMax); }
+		}
+
+		public int rankIndex {
+			get {
+				var _ranks = instance.ranks;
+				var _scale = scoreScale;
+
+				for(int i = 0; i < _ranks.Length; i++) {
+					if(_scale >= _ranks[i].scale)
+						return i;
+				}
+
+				return _ranks.Length - 1;
+			}
+		}
 	}
 
 	public struct AttackState {
 		public float[] scales; //number of rounds played with attack scale value
+		public int mistakeCount; //number of failing out of actions
 		public int roundCount; //max rounds for this one state
+
+		public int attackCount { get { return scales != null ?  scales.Length : 0; } }
+
+		public float effectiveScale {
+			get {
+				if(scales == null)
+					return 0f;
+
+				var scaleSum = 0f;
+
+				for(int i = 0; i < scales.Length; i++)
+					scaleSum += scales[i];
+
+				for(int i = scales.Length; i < roundCount; i++)
+					scaleSum += 1f;
+
+				return scaleSum / roundCount;
+			}
+		}
 
 		public static AttackState Load(M8.UserData userData, string prefix) {
 			var scaleCount = userData.GetInt(prefix + "asc");
@@ -41,9 +105,10 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 			for(int i = 0; i < scaleCount; i++)
 				scales[i] = userData.GetFloat(prefix + "as" + i, scales[i]);
 
+			var mistakeCount = userData.GetInt(prefix + "ec");
 			var roundCount = userData.GetInt(prefix + "rc");
 
-			return new AttackState { scales = scales, roundCount = roundCount };
+			return new AttackState { scales = scales, mistakeCount = mistakeCount, roundCount = roundCount };
 		}
 
 		public void Save(M8.UserData userData, string prefix) {
@@ -57,11 +122,30 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 				userData.SetInt(prefix + "asc", 0);
 			}
 
+			userData.SetInt(prefix + "ec", mistakeCount);
 			userData.SetInt(prefix + "rc", roundCount);
 		}
 	}
 
 	public class LevelState {
+		public LevelStats stats {
+			get {
+				var attackCount = 0;
+				var mistakeCount = 0;
+				var effectiveScaleSum = 0f;
+
+				for(int i = 0; i < mAttackStates.Length; i++) {
+					var state = mAttackStates[i];
+
+					attackCount += state.attackCount;
+					mistakeCount += state.mistakeCount;
+					effectiveScaleSum += state.effectiveScale;
+				}
+
+				return new LevelStats { attackCount = attackCount, mistakeCount = mistakeCount, effectiveScale = effectiveScaleSum / mAttackStates.Length };
+			}
+		}
+
 		private AttackState[] mAttackStates; //length corresponds to progressCount
 
 		public LevelState(M8.UserData userData, string levelName, int defaultStateCount) {
@@ -72,13 +156,13 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 			mAttackStates = new AttackState[stateCount];
 		}
 
-		public void ApplyState(int stateIndex, float[] attackScales, int roundCount) {
+		public void ApplyState(int stateIndex, float[] attackScales, int mistakeCount, int roundCount) {
 			if(mAttackStates == null)
 				mAttackStates = new AttackState[stateIndex + 1];
 			else if(mAttackStates.Length <= stateIndex)
 				Array.Resize(ref mAttackStates, stateIndex + 1);
 
-			mAttackStates[stateIndex] = new AttackState { scales = attackScales, roundCount = roundCount };
+			mAttackStates[stateIndex] = new AttackState { scales = attackScales, mistakeCount = mistakeCount, roundCount = roundCount };
 		}
 
 		public AttackState GetState(int stateIndex) {
@@ -113,6 +197,13 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 		}
 	}
 
+	[Header("Modals")]
+	public string modalOpSolver = "blobOperator";
+	public string modalBlobSplitTenths = "blobSplitTenths";
+	public string modalBlobSplitPartialQuotient = "blobSplitPartialQuotient";
+	public string modalNumpad = "numpad";
+	public string modalVictory = "victory";
+
 	[Header("Levels")]
 	public LevelData[] levels;
 	public M8.SceneAssetPath end;
@@ -123,65 +214,111 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 	[Header("Play Config")]
 	public int playAttackCapacity = 10;
 	public float playAttackFullThreshold = 0.6f; //at what percentage of attack is considered full
+	public int playAttackSplitReduce = 1; //amount to reduce when splitting blob
+	public int playAttackErrorReduce = 2; //amount of reduction when player fails an action
+	public int playErrorCount = 3; //how many times before failing a computation
+	public int playFailRoundCount = 3; //how many times player failed, if reached, reset board with new blobs
 
 	[Header("Blob Spawn Config")]
 	public LayerMask blobSpawnCheckMask; //ensure spot is fine to spawn
+	public LayerMask blobSpawnCheckSolidMask; //check for 'out of bounds'
 	public float blobSpawnDelay = 0.3f;
 	public float blobSpawnClearoutForce = 5f;
 	public float blobSpawnClearoutDelay = 3f;
 	public float blobMergeImpuse = 5f;
 
-	public int playStateIndex { get { return mPlayStateInd; } }
+	[Header("Score Config")]
+	public int scorePerRound = 4500;
+	public int scoreNoMistake = 500;
+
+	public int playStateIndex { 
+		get {
+			if(mLevelInd == -1 || mPlayStateInd == -1)
+				GenerateLevelInfo();
+
+			return mPlayStateInd; 
+		} 
+	}
+
+	public LevelMode levelMode { get { return mLevelInd >= 0 && mLevelInd < levels.Length ? levels[mLevelInd].mode : LevelMode.None; } }
+
+	public int playIndex { get { return mLevelInd >= 0 && mLevelInd < levels.Length ? levels[mLevelInd].playIndex : 0; } }
 
 	private LevelState[] mLevelStates;
 
 	private int mLevelInd = -1;
 	private int mPlayStateInd = -1;
-	private LevelMode mLevelMode = LevelMode.None;
 
 	public AttackState GetAttackState(int stateIndex) {
 		if(mLevelInd == -1)
 			GenerateLevelInfo();
 
-		if(mLevelInd != -1)
-			return mLevelStates[mLevelInd].GetState(stateIndex);
+		if(mLevelInd >= 0 && mLevelInd < levels.Length) {
+			var lvl = levels[mLevelInd];
+			if(lvl.isLevel)
+				return mLevelStates[lvl.playIndex].GetState(stateIndex);
+		}
 
 		return new AttackState();
 	}
 
-	public void SaveCurrentLevelPlayState(int stateIndex, float[] attackScales, int roundCount) {
+	public LevelStats GetCurrentLevelStats() {
+		if(mLevelInd == -1)
+			GenerateLevelInfo();
+
+		if(mLevelStates == null)
+			LoadStates();
+
+		if(mLevelInd >= 0 && mLevelInd < levels.Length) {
+			var lvl = levels[mLevelInd];
+			if(lvl.isLevel)
+				return mLevelStates[lvl.playIndex].stats;
+		}
+
+		return new LevelStats();
+	}
+
+	public int Progress(int stateIndex, float[] attackScales, int mistakeCount, int roundCount) {
 		if(mLevelInd == -1)
 			GenerateLevelInfo();
 
 		if(mLevelStates == null)
 			GenerateLevelStates();
 
-		mPlayStateInd = stateIndex;
-				
-		mLevelStates[mLevelInd].ApplyState(stateIndex, attackScales, roundCount);
+		var playInd = -1;
+		if(mLevelInd >= 0 && mLevelInd < levels.Length) {
+			var lvl = levels[mLevelInd];
+			if(lvl.isLevel)
+				playInd = lvl.playIndex;
+		}
 
-		var prog = GetProgressUpToLevel(mLevelInd, false);
+		if(playInd == -1) //fail-safe
+			return mPlayStateInd;
+								
+		mLevelStates[playInd].ApplyState(stateIndex, attackScales, mistakeCount, roundCount);
 
-		prog += mPlayStateInd;
-				
+		mPlayStateInd = stateIndex + 1;
+								
 		var userData = LoLManager.instance.userData;
 		if(userData) {
 			userData.SetInt("lvlInd", mLevelInd);
 			userData.SetInt("playInd", mPlayStateInd);
-			userData.SetInt("lvlMode", (int)mLevelMode);
 
 			var curScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
 
-			mLevelStates[mLevelInd].Save(userData, curScene.name);
+			mLevelStates[playInd].Save(userData, curScene.name);
 		}
 
+		var prog = GetProgressUpToLevel(mLevelInd, false) + mPlayStateInd;
+
 		LoLManager.instance.ApplyProgress(prog);
+
+		return mPlayStateInd;
 	}
 
 	public void ProgressNext() {
-		int curProg = LoLManager.instance.curProgress, nextProg = LoLManager.instance.curProgress;
-				
-		var toScene = end;
+		int curProg = LoLManager.instance.curProgress;
+		int nextProg = GetProgressUpToLevel(mLevelInd, false);
 
 		var userData = LoLManager.instance.userData;
 
@@ -192,132 +329,40 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 				mLevelInd = 0;
 		}
 
-		bool isNextLevel = false;
-		var curLvl = levels[mLevelInd];
-
-		switch(mLevelMode) {
-			case LevelMode.Intro:
-				nextProg = GetProgressUpToLevel(mLevelInd, true);
-
-				if(curLvl.scenePlay.isValid) { //enter play
-					toScene = curLvl.scenePlay;
-					mLevelMode = LevelMode.Play;
-				}
-				else
-					isNextLevel = true;
-				break;
-
-			case LevelMode.Play:
-				nextProg = GetProgressUpToLevel(mLevelInd, true);
-
-				if(curLvl.sceneInterlude.isValid) { //show level end
-					toScene = curLvl.sceneInterlude;
-					mLevelMode = LevelMode.End;
-				}
-				else
-					isNextLevel = true;
-				break;
-
-			default: //go next level
-				isNextLevel = true;
-				break;
-		}
-
-		if(isNextLevel) {
-			mLevelInd++;
-			if(mLevelInd >= 0 && mLevelInd < levels.Length) {
-				nextProg = GetProgressUpToLevel(mLevelInd, false);
-
-				if(levels[mLevelInd].sceneInterlude.isValid) {
-					toScene = levels[mLevelInd].sceneInterlude;
-					mLevelMode = LevelMode.Intro;
-				}
-				else if(levels[mLevelInd].scenePlay.isValid) {
-					toScene = levels[mLevelInd].scenePlay;
-					mLevelMode = LevelMode.Play;
-				}
-				else { //fail-safe, get next valid level
-					for(; mLevelInd < levels.Length; mLevelInd++) {
-						if(levels[mLevelInd].sceneInterlude.isValid) {
-							toScene = levels[mLevelInd].sceneInterlude;
-							mLevelMode = LevelMode.Intro;
-							break;
-						}
-						else if(levels[mLevelInd].sceneInterlude.isValid) {
-							toScene = levels[mLevelInd].scenePlay;
-							mLevelMode = LevelMode.Play;
-							break;
-						}
-					}
-				}
-			}
-			else {
-				nextProg = LoLManager.instance.progressMax;
-
-				mLevelMode = LevelMode.None;
-			}
-		}
-
+		mLevelInd++;
 		mPlayStateInd = 0;
 
 		if(userData) {
 			userData.SetInt("lvlInd", mLevelInd);
 			userData.SetInt("playInd", mPlayStateInd);
-			userData.SetInt("lvlMode", (int)mLevelMode);
-		}
+		}		
 
 		if(curProg != nextProg)
 			LoLManager.instance.ApplyProgress(nextProg);
 		else if(userData)
 			userData.Save();
 
-		toScene.Load();
+		if(mLevelInd < levels.Length)
+			levels[mLevelInd].scenePlay.Load();
+		else
+			end.Load();
 	}
 
 	public void LoadToCurrent() {
 		var userData = LoLManager.instance.userData;
+		if(!userData) { //fail-safe
+			NewGame();
+			return;
+		}
 
 		mLevelInd = userData.GetInt("lvlInd");
-		
-		mLevelMode = (LevelMode)userData.GetInt("lvlMode");
 
-		if(mLevelMode == LevelMode.Play)
-			mPlayStateInd = userData.GetInt("playInd");
+		LoadStates();
+
+		if(mLevelInd < levels.Length)
+			levels[mLevelInd].scenePlay.Load();
 		else
-			mPlayStateInd = 0;
-
-		mLevelStates = new LevelState[levels.Length];
-
-		for(int i = 0; i < levels.Length; i++) {
-			var lvl = levels[i];
-			if(lvl.scenePlay.isValid)
-				mLevelStates[i] = new LevelState(userData, lvl.scenePlay.name, lvl.progressCount);
-			else
-				mLevelStates[i] = new LevelState(0);
-		}
-
-		var curLvl = levels[mLevelInd];
-
-		switch(mLevelMode) {
-			case LevelMode.Intro:
-			case LevelMode.End:
-				if(curLvl.sceneInterlude.isValid)
-					curLvl.sceneInterlude.Load();
-				else //fail-safe
-					ProgressNext();
-				break;
-
-			case LevelMode.Play:
-				if(curLvl.scenePlay.isValid)
-					curLvl.scenePlay.Load();
-				else //fail-safe
-					ProgressNext();
-				break;
-
-			default: //shouldn't be None, just move to next progress
-				ProgressNext();
-				break;
-		}
+			end.Load();
 	}
 
 	public void NewGame() {
@@ -335,21 +380,14 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 			LoLManager.instance.ApplyProgress(0);
 		}
 
-		var curLvl = levels[mLevelInd];
-
-		if(curLvl.sceneInterlude.isValid) { //should be set to intro scene if available, this should be valid!
-			mLevelMode = LevelMode.Intro;
-			curLvl.sceneInterlude.Load();
-		}
-		else if(curLvl.scenePlay.isValid) { //fail-safe
-			mLevelMode = LevelMode.Play;
-			curLvl.scenePlay.Load();
-		}
-		else
-			Debug.LogWarning("First level has no valid scene!");
+		levels[mLevelInd].scenePlay.Load();
 	}
 
 	protected override void OnInstanceInit() {
+		mLevelStates = null;
+		mLevelInd = -1;
+		mPlayStateInd = 0;
+
 		var progCount = 0;
 
 		//determine progress count
@@ -359,19 +397,35 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 		LoLManager.instance.progressMax = progCount;
 	}
 
+	private void LoadStates() {
+		var userData = LoLManager.instance.userData;
+		if(!userData)
+			return;
+
+		mPlayStateInd = userData.GetInt("playInd");
+
+		var stateCount = GenerateLevelStateCount();
+
+		mLevelStates = new LevelState[stateCount];
+
+		for(int i = 0; i < levels.Length; i++) {
+			var lvl = levels[i];
+			if(lvl.isLevel)
+				mLevelStates[lvl.playIndex] = new LevelState(userData, lvl.scenePlay.name, lvl.progressCount);
+		}
+	}
+
 	private int GetProgressUpToLevel(int levelIndex, bool inclusive) {
 		var prog = 0;
 
-		if(inclusive) {
-			for(int i = 0; i <= levelIndex; i++)
-				prog += levels[i].progressCount;
-		}
-		else {
-			for(int i = 0; i < levelIndex; i++)
-				prog += levels[i].progressCount;
-		}
+		var count = inclusive ? levelIndex + 1 : levelIndex;
+		if(count >= levels.Length)
+			count = levels.Length;
 
-			return prog;
+		for(int i = 0; i < count; i++)
+			prog += levels[i].progressCount;
+
+		return prog;
 	}
 
 	private void GenerateLevelInfo() {
@@ -382,14 +436,8 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 		for(int i = 0; i < levels.Length; i++) {
 			var lvl = levels[i];
 
-			if(lvl.sceneInterlude == curScene) {
+			if(lvl.scenePlay == curScene) {
 				mLevelInd = i;
-				mLevelMode = LevelMode.Intro;				
-				break;
-			}
-			else if(lvl.scenePlay == curScene) {
-				mLevelInd = i;
-				mLevelMode = LevelMode.Play;
 				break;
 			}
 		}
@@ -397,16 +445,31 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 		mPlayStateInd = 0;
 	}
 
+	private int GenerateLevelStateCount() {
+		if(mLevelStates != null)
+			return mLevelStates.Length;
+
+		var stateCount = 0;
+
+		for(int i = 0; i < levels.Length; i++) {
+			var lvl = levels[i];
+			if(lvl.isLevel && lvl.playIndex >= stateCount)
+				stateCount = lvl.playIndex + 1;
+		}
+
+		return stateCount;
+	}
+
 	private void GenerateLevelStates() {
-		mLevelStates = new LevelState[levels.Length];
+		var stateCount = GenerateLevelStateCount();
+				
+		mLevelStates = new LevelState[stateCount];
 
 		for(int i = 0; i < levels.Length; i++) {
 			var lvl = levels[i];
 
-			if(lvl.scenePlay.isValid)
-				mLevelStates[i] = new LevelState(lvl.progressCount);
-			else
-				mLevelStates[i] = new LevelState(0);
+			if(lvl.isLevel)
+				mLevelStates[lvl.playIndex] = new LevelState(lvl.progressCount);
 		}
 	}
 }

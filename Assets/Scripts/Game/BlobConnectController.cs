@@ -45,6 +45,13 @@ public class BlobConnectController : MonoBehaviour {
             }
         }
 
+        public void SwapOps() {
+            var _blobLeft = blobOpLeft;
+
+            blobOpLeft = blobOpRight;
+            blobOpRight = _blobLeft;
+        }
+
         public void GetBlobOrder(out Blob blobOpLeft, out Blob blobOpRight, out Blob blobEqual) {
             blobEqual = blobEq;
             blobOpRight = connectEq ? connectEq.GetLinkedBlob(blobEqual) : null;
@@ -403,8 +410,7 @@ public class BlobConnectController : MonoBehaviour {
                 connectPtEnd = curBlobDragging.dragPoint;
 
                 //check if dragging inside
-                var dragJellySprRef = curBlobDragging.dragPointerJellySpriteRefPt;
-                if(dragJellySprRef && dragJellySprRef.ParentJellySpriteGO == curBlobDragging.gameObject) {
+                if(curBlobDragging.dragPointerBlob == curBlobDragging) {
                     //start set the same as end.
                     connectPtStart = connectPtEnd;
 

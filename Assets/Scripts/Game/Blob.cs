@@ -13,6 +13,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public const string parmNumber = "number";
     public const string parmState = "state";
     public const string parmDivisor = "divisor";
+    public const string parmSplitCount = "splitC";
 
     public enum State {
         None,
@@ -23,6 +24,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         Error, //error highlight for a bit
         Correct //animate and release
     }
+
+    [Header("Allocation")]
+    public int capacity;
 
     [Header("Jelly")]
     public UnityJellySprite jellySprite;
@@ -57,7 +61,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public float errorDuration = 1f;
 
     [Header("Solved Settings")]
-    public GameObject solvedActiveGO;
+    public ParticleSystem solvedFX;
 
     [Header("Correct Settings")]
     public float correctStartDelay = 0.5f;
@@ -70,9 +74,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     [Header("Highlight Display")]
     public GameObject highlightGO; //active during enter and dragging
     public GameObject highlightLockGO; //active if isHighlightLock is true
-    public GameObject highlightSplitGO; //active if splittable
+    
+    [Header("Split Display")]
+	public GameObjectSetActiveDelay splitActive; //active if splittable
+    public ParticleSystem splitFX;
 
-    [Header("UI")]    
+	[Header("UI")]    
     public TMP_Text numericText;
 
     [Header("Animation")]
@@ -93,9 +100,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     [Header("Signal Invokes")]
     public SignalBlob signalInvokeClick;
-    public SignalBlob signalInvokeDragBegin;
+	public SignalBlob signalInvokeDragBegin;
     public SignalBlob signalInvokeDragEnd;
     public SignalBlob signalInvokeDespawn;
+
+    public static bool dragDisabled { get; set; } //dangerous, make sure to properly reset it!
 
     public BlobData data { get; private set; }
 
@@ -113,20 +122,21 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         set {
             if(mNumber != value) {
                 mNumber = value;
-                ApplyNumberDisplay();
+
+				mCanSplit = divisor > 0 && data.CanSplit(mNumber, divisor);
+
+				ApplyNumberDisplay();
             }
         }
     }
 
     public int divisor { get; private set; } //this is used for checking if this blob is divisible, 0 if not a dividend
 
-    public int penaltyCounter { get; set; }
+    public int splitCount { get; private set; }
 
-    public int dragRefPointIndex { get; private set; }
     public Vector2 dragPoint { get; private set; } //world
     public bool isDragging { get; private set; }
     public GameObject dragPointerGO { get; private set; } //current GameObject on pointer during drag
-    public JellySpriteReferencePoint dragPointerJellySpriteRefPt { get; private set; } //current jelly sprite ref pt. on pointer during drag
     public Blob dragPointerBlob { get; private set; } //blob that dragPointerGO/dragPointerJellySpriteRefPt is part of
 
 	public M8.PoolDataController poolData {
@@ -203,11 +213,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
-    public bool canSplit {
-        get {
-            return divisor > 0 && data.CanSplit(mNumber, divisor);
-		}
-    }
+    public bool canSplit { get { return mCanSplit; } }
 
     private int mNumber;
 
@@ -234,6 +240,13 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     private Color mLastColor;
 
     private State mSpawnToState;
+
+    private bool mCanSplit;
+
+    public void ReduceSplitCounter() {
+        if(splitCount > 0)
+            splitCount--;
+    }
 
     /// <summary>
     /// Get an approximate edge towards given point, relies on reference points to provide edge.
@@ -346,9 +359,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         data = null;
 		mNumber = 0;
-        penaltyCounter = 0;
         mInputLocked = false;
         mInputLockedInternal = false;
+
+        divisor = 0;
+        splitCount = 0;
 
         Sprite spr = mLastSprite;
         Color clr = mLastColor;
@@ -370,14 +385,27 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             if(parms.ContainsKey(parmNumber))
                 mNumber = parms.GetValue<int>(parmNumber);
 
-            if(parms.ContainsKey(parmState)) {
+            if(parms.ContainsKey(parmDivisor))
+                divisor = parms.GetValue<int>(parmDivisor);
+
+			if(parms.ContainsKey(parmSplitCount))
+				splitCount = parms.GetValue<int>(parmSplitCount);
+
+			if(parms.ContainsKey(parmState)) {
                 var toState = parms.GetValue<State>(parmState);
                 if(toState != State.None)
                     mSpawnToState = toState;
 			}
         }
 
-        bool isInit = jellySprite.CentralPoint != null;
+		mCanSplit = divisor > 0 && splitCount > 0 && data.CanSplit(mNumber, divisor);
+
+        if(splitFX) {
+            var dat = splitFX.main;
+            dat.startColor = clr;
+        }
+
+		bool isInit = jellySprite.CentralPoint != null;
         if(isInit) {
             //need to reinitialize mesh/material?
             bool isMaterialChanged = jellySprite.m_Material != normalMaterial;
@@ -420,14 +448,17 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         state = State.Spawning;
     }
 
-    public void OnPointerClick(JellySprite jellySprite, int index, PointerEventData eventData) {
+    /////////////////////////////////////////////////////////////
+    // NOTE: Add a child gameObject with EventClick, EventListener, EventDragListener components and hook these up with their corresponding callbacks
+
+    public void OnPointerClick() {
         if(inputLocked)
             return;
 
         signalInvokeClick?.Invoke(this);
     }
 
-    public void OnPointerEnter(JellySprite jellySprite, int index, PointerEventData eventData) {
+    public void OnPointerEnter(PointerEventData eventData) {
         if(inputLocked)
             return;
 
@@ -438,13 +469,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             if(hoverDragMaterial)
                 ApplyJellySpriteMaterial(hoverDragMaterial);
 
-            if(highlightGO) highlightGO.SetActive(true);
-
-            if(highlightSplitGO) highlightSplitGO.SetActive(canSplit);
+            if(highlightGO) highlightGO.SetActive(!isDragging);
+            if(splitActive) splitActive.isActive = !isDragging && mCanSplit;
 		}
     }
 
-    public void OnPointerExit(JellySprite jellySprite, int index, PointerEventData eventData) {
+    public void OnPointerExit(PointerEventData eventData) {
         if(inputLocked)
             return;
 
@@ -456,30 +486,33 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 ApplyJellySpriteMaterial(normalMaterial);
 
             if(highlightGO) highlightGO.SetActive(false);
-            if(highlightSplitGO) highlightSplitGO.SetActive(false);
+            if(splitActive) splitActive.isActive = false;
 		}
     }
 
-    public void OnDragBegin(JellySprite jellySprite, int index, PointerEventData eventData) {
+    public void OnDragBegin(PointerEventData eventData) {
+        if(dragDisabled)
+            return;
+
         if(inputLocked)
             return;
 
         DragStart();
 
-        DragUpdate(eventData, index);
+        DragUpdate(eventData);
 
         if(signalInvokeDragBegin)
             signalInvokeDragBegin.Invoke(this);
     }
 
-    public void OnDrag(JellySprite jellySprite, int index, PointerEventData eventData) {
+    public void OnDrag(PointerEventData eventData) {
         if(!isDragging)
             return;
 
-        DragUpdate(eventData, index);
+        DragUpdate(eventData);
     }
 
-    public void OnDragEnd(JellySprite jellySprite, int index, PointerEventData eventData) {
+    public void OnDragEnd(PointerEventData eventData) {
         if(!isDragging)
             return;
 
@@ -651,26 +684,24 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         if(hoverDragMaterial)
             ApplyJellySpriteMaterial(hoverDragMaterial);
-    }
 
-    private void DragUpdate(PointerEventData eventData, int index) {
-        dragRefPointIndex = index;
+		if(highlightGO) highlightGO.SetActive(false);
+		if(splitActive) splitActive.isActive = false;
+	}
 
+    private void DragUpdate(PointerEventData eventData) {
         var prevDragPointerGO = dragPointerGO;
         dragPointerGO = eventData.pointerCurrentRaycast.gameObject;
 
         if(dragPointerGO) {
             //update ref.
             if(dragPointerGO != prevDragPointerGO) {
-                dragPointerJellySpriteRefPt = dragPointerGO.GetComponent<JellySpriteReferencePoint>();
-                if(dragPointerJellySpriteRefPt && dragPointerJellySpriteRefPt.ParentJellySpriteGO)
-                    dragPointerBlob = dragPointerJellySpriteRefPt.ParentJellySpriteGO.GetComponent<Blob>();
+                dragPointerBlob = dragPointerGO.GetComponentInParent<Blob>();
 			}
 
             dragPoint = eventData.pointerCurrentRaycast.worldPosition;
         }
         else {
-            dragPointerJellySpriteRefPt = null;
             dragPointerBlob = null;
 
 			//grab point from main camera
@@ -682,7 +713,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         if(isDragging) {
             //signal with no dragPointer
             dragPointerGO = null;
-            dragPointerJellySpriteRefPt = null;
 			dragPointerBlob = null;
 
 			if(signalInvokeDragEnd)
@@ -693,10 +723,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     private void DragEnd() {
-        dragRefPointIndex = -1;
         isDragging = false;
         dragPointerGO = null;
-        dragPointerJellySpriteRefPt = null;
 		dragPointerBlob = null;
 
 		//hide display, etc.
@@ -783,7 +811,27 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 break;
         }
 
-        if(solvedActiveGO) solvedActiveGO.SetActive(mState == State.Solved);
+        if(solvedFX) {
+			var fxMain = solvedFX.main;
+
+			if(mState == State.Solved) {                
+                fxMain.loop = true;
+                solvedFX.Play();
+            }
+            else
+                fxMain.loop = false;
+        }
+
+        if(splitFX) {
+            var fxMain = splitFX.main;
+
+            if(mState == State.Normal && mCanSplit) {
+                fxMain.loop = true;
+                splitFX.Play();
+            }
+            else
+				fxMain.loop = false;
+		}
 
 		if(highlightGO) highlightGO.SetActive(false);
         mIsHighlight = false;
@@ -791,7 +839,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         if(highlightLockGO) highlightLockGO.SetActive(false);
         mIsHighlightLocked = false;
 
-        if(isDragInvalid)
+        if(splitActive) splitActive.ForceSetActive(false);
+
+		if(isDragInvalid)
             DragInvalidate();
 
         mIsConnected = false;

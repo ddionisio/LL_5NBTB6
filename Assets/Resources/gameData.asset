@@ -12,14 +12,115 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 650800ed60807f44a876f1b9b339f4ba, type: 3}
   m_Name: gameData
   m_EditorClassIdentifier: 
-  blobDividend: {fileID: 11400000, guid: b4a9e5de4f7c08647adf602668c3c60b, type: 2}
-  blobDividendSplit: {fileID: 11400000, guid: 8f4ee0bb5968c384abefe52cd1c5be12, type: 2}
-  blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
-  blobQuotient: {fileID: 11400000, guid: c165b0b8cb5012b418b1bcb8855bb58f, type: 2}
-  blobQuotientMerged: {fileID: 11400000, guid: f5fe7606afee9924d97320605e883b88, type: 2}
+  modalOpSolver: blobOperator
+  modalBlobSplitTenths: blobSplitTenths
+  modalBlobSplitPartialQuotient: blobSplitPartialQuotient
+  modalNumpad: numpad
+  modalVictory: victory
+  levels:
+  - scenePlay:
+      name: lesson01
+      path: Assets/Scenes/lesson01.unity
+    mode: 0
+    playIndex: -1
+    progressCount: 1
+  - scenePlay:
+      name: interlude
+      path: Assets/Scenes/interlude.unity
+    mode: 1
+    playIndex: 0
+    progressCount: 0
+  - scenePlay:
+      name: level01
+      path: Assets/Scenes/level01.unity
+    mode: 2
+    playIndex: 0
+    progressCount: 3
+  - scenePlay:
+      name: interlude
+      path: Assets/Scenes/interlude.unity
+    mode: 3
+    playIndex: 0
+    progressCount: 0
+  - scenePlay:
+      name: level02
+      path: Assets/Scenes/level02.unity
+    mode: 2
+    playIndex: 1
+    progressCount: 2
+  - scenePlay:
+      name: interlude
+      path: Assets/Scenes/interlude.unity
+    mode: 3
+    playIndex: 1
+    progressCount: 0
+  - scenePlay:
+      name: lesson02
+      path: Assets/Scenes/lesson02.unity
+    mode: 0
+    playIndex: -1
+    progressCount: 1
+  - scenePlay:
+      name: level03
+      path: Assets/Scenes/level03.unity
+    mode: 2
+    playIndex: 2
+    progressCount: 3
+  - scenePlay:
+      name: interlude
+      path: Assets/Scenes/interlude.unity
+    mode: 3
+    playIndex: 2
+    progressCount: 0
+  - scenePlay:
+      name: level04
+      path: Assets/Scenes/level04.unity
+    mode: 2
+    playIndex: 3
+    progressCount: 2
+  - scenePlay:
+      name: interlude
+      path: Assets/Scenes/interlude.unity
+    mode: 3
+    playIndex: 3
+    progressCount: 0
+  end:
+    name: 
+    path: 
+  ranks:
+  - grade: S+
+    icon: {fileID: 21300000, guid: efb30510923c8e341a94021d37b90f02, type: 3}
+    scale: 1
+  - grade: S
+    icon: {fileID: 21300000, guid: 425bb223fc171864cbce99edbb973804, type: 3}
+    scale: 0.9
+  - grade: A
+    icon: {fileID: 21300000, guid: b6bf19d4ccd6b3d49a7e075574aabd0c, type: 3}
+    scale: 0.8
+  - grade: B
+    icon: {fileID: 21300000, guid: 998bcf7d461949f43b6363e2e6b63f42, type: 3}
+    scale: 0.6
+  - grade: C
+    icon: {fileID: 21300000, guid: 4ba7fa0f1f2067943a76978851a0a7d2, type: 3}
+    scale: 0.5
+  - grade: D
+    icon: {fileID: 21300000, guid: 1f5cadb50390689459d6d01efc5893db, type: 3}
+    scale: 0
+  playAttackCapacity: 10
+  playAttackFullThreshold: 0.6
+  playAttackSplitReduce: 1
+  playAttackErrorReduce: 2
+  playErrorCount: 3
+  playFailRoundCount: 3
   blobSpawnCheckMask:
     serializedVersion: 2
     m_Bits: 384
+  blobSpawnCheckSolidMask:
+    serializedVersion: 2
+    m_Bits: 1
   blobSpawnDelay: 0.3
-  blobSpawnClearoutForce: 5
+  blobSpawnClearoutForce: 1.5
   blobSpawnClearoutDelay: 3
+  blobMergeImpuse: 5
+  scorePerRound: 4500
+  scoreNoMistake: 500

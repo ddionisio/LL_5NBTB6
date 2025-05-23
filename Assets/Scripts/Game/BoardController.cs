@@ -10,15 +10,28 @@ public class BoardController : MonoBehaviour {
 	public Vector2 originOffset;
 	public float radius;
 
+	[Header("Attack Info")]
+	public HUDAttackValue attackHUD;
+	public AttackEntity attackEntityPrefab;
+	public ParticleSystem attackBoardFX;
+	public Transform attackEntityRoot;
+	public Vector2 attackStartOffset;
+	public float attackStartRadius;
+	public float attackEndRadiusOffset;
+	public float attackIntervalDelay = 0.3f;
+	public int attackValue = 3;
+
 	[Header("Board Animation")]
 	public M8.Animator.Animate animator;
 
 	[M8.Animator.TakeSelector]
-	public int takeReady = -1;
+	public int takeEnter = -1;
 	[M8.Animator.TakeSelector]
 	public int takeHurt = -1;
 	[M8.Animator.TakeSelector]
-	public int takeDefeat = -1;
+	public int takeEnd = -1;
+
+	public bool active { get { return gameObject.activeSelf; } set { gameObject.SetActive(value); } }
 
 	public Vector2 position {
 		get { return ((Vector2)transform.position) + originOffset; }
@@ -48,48 +61,105 @@ public class BoardController : MonoBehaviour {
 	private System.Text.StringBuilder mBlobNameCache = new System.Text.StringBuilder();
 
 	private Collider2D[] mColliderCache = new Collider2D[128];
-	
-	//Board Interface
-	
-	public IEnumerator PlayReady() {
-		if(takeReady != -1)
-			yield return animator.PlayWait(takeReady);
-		else
-			yield return null;
 
-		//TODO: callback ready (board hud initialize, animate enter)
-	}
+	private AttackEntity[] mAttackEntities;
+	private WaitForSeconds mAttackWaitInterval;
 
-	public IEnumerator PlayDefeat() {
-		if(takeDefeat != -1)
-			yield return animator.PlayWait(takeDefeat);
-		else
-			yield return null;
-	}
-
-	public IEnumerator Attack() {
-
-		//decrement hp based on attack
-
-		//board hud animation
-
-		//hurt
-
-		//reset attack
-
-		yield return null;
-	}
-
-	//Blob Interface
-
-	public void InitBlobPool() {
+	public void Init() {
+		//initialize all blob things
 		blobPool = M8.PoolController.GetPool(blobSpawnPoolGroup);
 		if(!blobPool) {
 			blobPool = M8.PoolController.CreatePool(blobSpawnPoolGroup);
 			blobPool.gameObject.DontDestroyOnLoad();
 		}
+
+		//initialize all attack things
+		var attackCapacity = (GameData.instance.playAttackCapacity / attackValue) + 1;
+
+		mAttackEntities = new AttackEntity[attackCapacity];
+		for(int i = 0; i < attackCapacity; i++) {
+			var attackEnt = Instantiate(attackEntityPrefab, attackEntityRoot);
+
+			mAttackEntities[i] = attackEnt;
+
+			attackEnt.active = false;
+		}
+
+		if(attackEntityRoot) attackEntityRoot.gameObject.SetActive(false);
+
+		mAttackWaitInterval = new WaitForSeconds(attackIntervalDelay);
+		mBlobSpawnWait = new WaitForSeconds(GameData.instance.blobSpawnDelay);
 	}
 
+	//Board Interface
+
+	public void PlayerFail() {
+		if(takeHurt != -1)
+			animator.Play(takeHurt);
+	}
+	
+	public IEnumerator PlayEnter() {
+		if(takeEnter != -1)
+			yield return animator.PlayWait(takeEnter);
+		else
+			yield return null;
+	}
+
+	public IEnumerator PlayEnd() {
+		if(takeEnd != -1)
+			yield return animator.PlayWait(takeEnd);
+		else
+			yield return null;
+	}
+
+	public IEnumerator Attack() {
+		yield return null;
+
+		if(attackEntityRoot) attackEntityRoot.gameObject.SetActive(true);
+
+		var attackOrigin = (Vector2)transform.position + attackStartOffset;
+		var boardOrigin = position;
+
+		var attackCount = 0;
+
+		for(; attackCount < mAttackEntities.Length && attackHUD.attackValue > 0; attackCount++) {
+			var ent = mAttackEntities[attackCount];
+
+			var start = attackOrigin + Random.insideUnitCircle * attackStartRadius;
+			var end = boardOrigin + Random.insideUnitCircle * (radius - attackEndRadiusOffset);
+
+			ent.active = true;
+			ent.Move(start, end, attackBoardFX);
+
+			attackHUD.attackValue -= attackValue;
+
+			yield return mAttackWaitInterval;
+		}
+
+		attackHUD.attackValue = 0; //just in case
+
+		var attackFinishCount = 0;
+		while(attackFinishCount < attackCount) {
+			yield return null;
+
+			var lastCount = attackFinishCount;
+
+			attackFinishCount = 0;
+			for(int i = 0; i < attackCount; i++) {
+				var ent = mAttackEntities[i];
+				if(!ent.isBusy)
+					attackFinishCount++;
+			}
+		}
+
+		for(int i = 0; i < attackCount; i++)
+			mAttackEntities[i].active = false;
+
+		if(attackEntityRoot) attackEntityRoot.gameObject.SetActive(false);
+	}
+
+	//Blob Interface
+		
 	public bool CheckAnyBlobActiveState(params Blob.State[] states) {
 		for(int i = 0; i < mBlobActives.Count; i++) {
 			var blob = mBlobActives[i];
@@ -211,7 +281,8 @@ public class BoardController : MonoBehaviour {
 	}
 
 	void Awake() {
-		mBlobSpawnWait = new WaitForSeconds(GameData.instance.blobSpawnDelay);
+		if(takeEnter != -1)
+			animator.ResetTake(takeEnter);
 	}
 
 	IEnumerator DoSpawnQueue() {
@@ -229,7 +300,20 @@ public class BoardController : MonoBehaviour {
 
 			//get spawn point, and clear out other blobs within spawn area
 			var checkRadius = blobDat.spawnPointCheckRadius;
-			var spawnPt = spawnInfo.isSpawnPointOverride ? spawnInfo.spawnPointOverride : GenerateBlobSpawnPoint(checkRadius);
+
+			Vector2 spawnPt;
+
+			if(spawnInfo.isSpawnPointOverride) {
+				var pt = spawnInfo.spawnPointOverride;
+
+				//check to see if it is 'out of bounds'
+				if(Physics2D.OverlapCircle(pt, checkRadius, gameDat.blobSpawnCheckSolidMask))
+					spawnPt = GenerateBlobSpawnPoint(checkRadius); //just use guaranteed point within board
+				else
+					spawnPt = pt;
+			}
+			else
+				spawnPt = GenerateBlobSpawnPoint(checkRadius);
 
 			var curTime = 0f;
 			while(curTime < gameDat.blobSpawnClearoutDelay) {
@@ -271,6 +355,7 @@ public class BoardController : MonoBehaviour {
 			mBlobSpawnParms[JellySpriteSpawnController.parmColor] = blobDat.color;
 			mBlobSpawnParms[Blob.parmNumber] = spawnInfo.number;
 			mBlobSpawnParms[Blob.parmDivisor] = spawnInfo.divisor;
+			mBlobSpawnParms[Blob.parmSplitCount] = spawnInfo.splitCount;
 			mBlobSpawnParms[Blob.parmState] = spawnInfo.spawnToState != Blob.State.None ? spawnInfo.spawnToState : Blob.State.Normal;
 
 			string blobName;
@@ -315,5 +400,8 @@ public class BoardController : MonoBehaviour {
 	void OnDrawGizmos() {
 		Gizmos.color = Color.yellow;
 		Gizmos.DrawWireSphere(position, radius);
+
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere((Vector2)transform.position + attackStartOffset, attackStartRadius);
 	}
 }

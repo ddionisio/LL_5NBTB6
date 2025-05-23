@@ -88,7 +88,7 @@ Camera:
   m_GameObject: {fileID: 6215370590023845862}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 4
+  m_ClearFlags: 3
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -182,5 +182,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_EventMask:
     serializedVersion: 2
-    m_Bits: 2147484096
+    m_Bits: 2147483968
   m_MaxRayIntersections: 0

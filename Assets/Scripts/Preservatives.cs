@@ -10,6 +10,7 @@ public class Preservatives : MonoBehaviour {
 	public CanvasGroup _canvasGroup;
 	public RectTransform _rectTransform;
 	public Blob _blob;
+	public BlobWidget _blobWidget;
 	public SpriteRenderer _spriteRenderer;
 	public M8.SpriteColorAlpha _spriteColorAlpha;
 	public M8.SpriteColorAlphaGroup _spriteColorAlphaGroup;
@@ -18,6 +19,7 @@ public class Preservatives : MonoBehaviour {
 	public M8.ColorFromPaletteBase _colorFromPalette;
 	public M8.SpriteColorGroup _spriteColorGroup;
 	public TextMeshProUGUI _textGUI;
+	public M8.TextMeshPro.TextMeshProInteger _textInt;
 
 	void Awake() {
 		if(_cam) {
@@ -37,10 +39,16 @@ public class Preservatives : MonoBehaviour {
 		if(_rectTransform) {
 			_rectTransform.anchoredPosition = Vector2.zero;
 			_rectTransform.sizeDelta = Vector2.zero;
+			_rectTransform.anchorMin = Vector2.zero;
+			_rectTransform.anchorMax = Vector2.zero;
 		}
 
 		if(_blob) {
 			_blob.colorAlpha = 1f;
+		}
+
+		if(_blobWidget) {
+			_blobWidget.colorAlpha = 1f;
 		}
 
 		if(_spriteRenderer) {
@@ -79,6 +87,10 @@ public class Preservatives : MonoBehaviour {
 
 		if(_textGUI) {
 			_textGUI.color = Color.white;
+		}
+
+		if(_textInt) {
+			_textInt.number = 0;
 		}
 	}
 }

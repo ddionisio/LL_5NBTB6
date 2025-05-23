@@ -12,6 +12,8 @@ public class DigitWidget : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     [SerializeField]
     RectTransform _interactiveRoot;
     [SerializeField]
+    bool _interactiveDefault = true;
+    [SerializeField]
     GameObject _highlightGO;
     [SerializeField]
     RectTransform _numberRoot;
@@ -23,7 +25,7 @@ public class DigitWidget : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     M8.Animator.Animate _animator;
     [M8.Animator.TakeSelector(animatorField = "_animator")]
     [SerializeField]
-    string _takePulse;
+    int _takePulse = -1;
 
     [Header("SFX")]
     [M8.SoundPlaylist]
@@ -72,6 +74,8 @@ public class DigitWidget : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
 
     public RectTransform numberRoot { get { return _numberRoot; } }
 
+    public Vector2 position { get { return transform.position; } }
+
     public bool isHighlight {
         get { return mIsHighlight; }
         set {
@@ -81,6 +85,7 @@ public class DigitWidget : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     }
 
     public event System.Action<int> clickCallback;
+    public event System.Action<int, bool> hoverCallback;
 
     private RectTransform mRectTrans;
     private Graphic mGraphicRoot;
@@ -117,7 +122,7 @@ public class DigitWidget : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
                 _numberRoot.localPosition = mNumberRootLocalPos;
         }
 
-        interactable = false;
+        interactable = _interactiveDefault;
 
         mIsHighlight = false;
         mIsPointerEnter = false;
@@ -131,7 +136,7 @@ public class DigitWidget : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     }
 
     public void PlayPulse() {
-        if(_animator && !string.IsNullOrEmpty(_takePulse))
+        if(_takePulse != -1)
             _animator.Play(_takePulse);
     }
 
@@ -152,12 +157,16 @@ public class DigitWidget : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData) {
         mIsPointerEnter = true;
         RefreshHighlight();
-    }
+
+        hoverCallback?.Invoke(index, true);
+	}
 
     void IPointerExitHandler.OnPointerExit(PointerEventData eventData) {
         mIsPointerEnter = false;
         RefreshHighlight();
-    }
+
+		hoverCallback?.Invoke(index, false);
+	}
 
     private void RefreshHighlight() {
         if(_highlightGO) {

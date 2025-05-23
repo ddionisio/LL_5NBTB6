@@ -20,7 +20,7 @@ public class DigitGroupWidget : MonoBehaviour {
     M8.Animator.Animate _animator;
     [M8.Animator.TakeSelector(animatorField = "_animator")]
     [SerializeField]
-    string _takePulse;
+    int _takePulse = -1;
 
     public int digitCapacity { get { return _digitCapacity; } }
     public int digitCount { get { return mNumberDigitCount; } }
@@ -65,8 +65,9 @@ public class DigitGroupWidget : MonoBehaviour {
     }
 
     public event System.Action<int> clickCallback;
+	public event System.Action<int, bool> hoverCallback;
 
-    private DigitWidget[] mDigitWidgets;
+	private DigitWidget[] mDigitWidgets;
     private RectTransform mRectTrans;
     
     private int mNumber;
@@ -84,13 +85,73 @@ public class DigitGroupWidget : MonoBehaviour {
                 newDigitWidget.Init(i);
 
                 newDigitWidget.clickCallback += OnDigitClick;
+                newDigitWidget.hoverCallback += OnDigitHover;
 
-                newDigitWidget.gameObject.SetActive(false);
+				newDigitWidget.gameObject.SetActive(false);
 
                 mDigitWidgets[i] = newDigitWidget;
             }
         }
     }
+
+	public void SetDigitsFixedCount(int number, int digitCount) {
+        digitCount = Mathf.Clamp(digitCount, 0, _digitCapacity);
+
+		mNumber = number;
+		mNumberDigitCount = Mathf.Clamp(WholeNumber.DigitCount(mNumber), 0, _digitCapacity);
+
+		int numberMod = mNumber;
+
+		//apply digits
+		for(int i = 0; i < mNumberDigitCount; i++) {
+			var digitWidget = mDigitWidgets[i];
+			if(digitWidget) {
+				digitWidget.number = numberMod % 10;
+				digitWidget.gameObject.SetActive(true);
+
+				numberMod /= 10;
+			}
+		}
+
+		//add leading zeroes
+		for(int i = mNumberDigitCount; i < digitCount; i++) {
+			var digitWidget = mDigitWidgets[i];
+			if(digitWidget)
+				digitWidget.number = 0;
+		}
+
+		//hide remaining digits
+		for(int i = digitCount; i < _digitCapacity; i++) {
+			var digitWidget = mDigitWidgets[i];
+            if(digitWidget) {
+				digitWidget.number = 0;
+				mDigitWidgets[i].gameObject.SetActive(false);
+            }
+		}
+	}
+
+	public void SetDigitsZero(int digitCount) {
+		mNumber = 0;
+		mNumberDigitCount = 0;
+
+		//zeroes
+		for(int i = 0; i < digitCount; i++) {
+			var digitWidget = mDigitWidgets[i];
+			if(digitWidget) {
+				digitWidget.number = 0;
+				digitWidget.gameObject.SetActive(true);
+			}
+		}
+
+		//hide remaining digits
+		for(int i = digitCount; i < _digitCapacity; i++) {
+			var digitWidget = mDigitWidgets[i];
+            if(digitWidget) {
+                digitWidget.number = 0;
+				digitWidget.gameObject.SetActive(false);
+            }
+		}
+	}
 
     public void SetDigitsEmpty(int aDigitCount) {
         mNumberDigitCount = Mathf.Clamp(aDigitCount, 0, _digitCapacity);
@@ -204,13 +265,17 @@ public class DigitGroupWidget : MonoBehaviour {
     }
 
     public void PlayPulse() {
-        if(_animator && !string.IsNullOrEmpty(_takePulse))
+        if(_takePulse != -1)
             _animator.Play(_takePulse);
     }
 
     void OnDigitClick(int index) {
         clickCallback?.Invoke(index);
     }
+
+    void OnDigitHover(int index, bool isHover) {
+        hoverCallback?.Invoke(index, isHover);
+	}
 
     private void RefreshNumberFromDigits() {
         mNumber = 0;

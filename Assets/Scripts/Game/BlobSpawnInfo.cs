@@ -4,6 +4,7 @@ public struct BlobSpawnInfo {
 	public BlobData data;
 	public int number;
 	public int divisor;
+	public int splitCount;
 
 	public string nameOverride;
 
@@ -12,11 +13,12 @@ public struct BlobSpawnInfo {
 	public Vector2 spawnPointOverride;
 	public bool isSpawnPointOverride;
 
-	public BlobSpawnInfo(BlobData data, Blob.State toState, int number, int divisor) {
+	public BlobSpawnInfo(BlobData data, int number, int divisor, int splitCount) {
 		this.data = data;
-		this.spawnToState = toState;
+		this.spawnToState = Blob.State.Normal;
 		this.number = number;
 		this.divisor = divisor;
+		this.splitCount = splitCount;
 
 		nameOverride = "";
 
@@ -24,11 +26,38 @@ public struct BlobSpawnInfo {
 		isSpawnPointOverride = false;
 	}
 
-	public BlobSpawnInfo(BlobData data, int number, int divisor, Vector2 position) {
+	public BlobSpawnInfo(BlobData data, Blob.State toState, Vector2 position, int number, int divisor) {
+		this.data = data;
+		this.spawnToState = toState;
+		this.number = number;
+		this.divisor = divisor;
+		this.splitCount = 0;
+
+		nameOverride = "";
+
+		spawnPointOverride = position;
+		isSpawnPointOverride = true;
+	}
+
+	public BlobSpawnInfo(BlobData data, Vector2 position, int number, int divisor, int splitCount) {
 		this.data = data;
 		this.spawnToState = Blob.State.Normal;
 		this.number = number;
 		this.divisor = divisor;
+		this.splitCount = splitCount;
+
+		nameOverride = "";
+
+		spawnPointOverride = position;
+		isSpawnPointOverride = true;
+	}
+
+	public BlobSpawnInfo(BlobData data, Vector2 position, int number, int divisor) {
+		this.data = data;
+		this.spawnToState = Blob.State.Normal;
+		this.number = number;
+		this.divisor = divisor;
+		this.splitCount = 0;
 
 		nameOverride = "";
 

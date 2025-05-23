@@ -12,8 +12,9 @@ public struct BlobActionResult {
 
 	public BlobConnectController.Group group; //group associated with result if available
 
-	public Blob blobLeft; //eg. dividend
-	public Blob blobRight; //eg. divisor
+	public Blob blobDividend;
+	public Blob blobDivisor;
 
-	public int val;
+	public int newValue;
+	public int splitValue;
 }

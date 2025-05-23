@@ -86,8 +86,8 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _OverlayColorPulseScale: 2
-    - _OverlayScroll2Scale: 0.2
-    - _OverlayScrollScale: 0.4
+    - _OverlayScroll2Scale: 0.1
+    - _OverlayScrollScale: 0.15
     - _OverlayScrollScale2: 0.34
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0

@@ -58,6 +58,22 @@ public struct WholeNumber {
         return count;
     }
 
+    public static bool GetFirstNonZeroDigit(int number, out int digitValue, out int digitIndex) {
+        digitValue = 0;
+        digitIndex = 0;
+
+		while(number > 0) {
+			digitValue = number % 10;
+            if(digitValue != 0)
+                return true;
+
+			number /= 10;
+            digitIndex++;
+		}
+
+		return false;
+	}
+
     public static int ZeroCount(int number) {
         int count = 0;
         for(int numStep = number; numStep % 10 == 0; count++)
@@ -75,5 +91,15 @@ public struct WholeNumber {
         }
 
         return count;
+    }
+
+    public static string RepeatingChar(int number, char ch) {
+        var digitCount = DigitCount(number);
+
+        var sb = new System.Text.StringBuilder(digitCount);
+        for(int i = 0; i < digitCount; i++)
+            sb.Append(ch);
+
+        return sb.ToString();
     }
 }

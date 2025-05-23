@@ -34,8 +34,8 @@ public class BlobNumberGenPair : BlobNumberGenBase {
 			mInd = 0;
 		}
 
-		mSpawnInfos[0] = new BlobSpawnInfo { data = blobDividend, number = pair.dividend };
-		mSpawnInfos[1] = new BlobSpawnInfo { data = blobDivisor, number = pair.divisor };
+		mSpawnInfos[0] = new BlobSpawnInfo(blobDividend, pair.dividend, pair.divisor, blobDividend.splitCount);
+		mSpawnInfos[1] = new BlobSpawnInfo(blobDivisor, pair.divisor, pair.divisor, 0);
 
 		ClearOps();
 
