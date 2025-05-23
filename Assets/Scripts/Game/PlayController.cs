@@ -14,7 +14,7 @@ public class PlayController : GameModeController<PlayController> {
 
 	[Header("Music")]
 	[M8.MusicPlaylist]
-	public string playMusic;
+	public string music;
 
 	[Header("Signal Invoke")]
 	public M8.Signal signalInvokeStart;
@@ -131,6 +131,9 @@ public class PlayController : GameModeController<PlayController> {
 
 	protected override IEnumerator Start() {
 		yield return base.Start();
+
+		if(!string.IsNullOrEmpty(music))
+			M8.MusicPlaylist.instance.Play(music, true, false);
 
 		var gameDat = GameData.instance;
 

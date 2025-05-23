@@ -3413,6 +3413,7 @@ MonoBehaviour:
     prefix: lesson2_end_
     startIndex: 0
     count: 0
+  music: lesson
 --- !u!1 &1661522344
 GameObject:
   m_ObjectHideFlags: 0

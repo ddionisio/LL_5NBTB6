@@ -25961,7 +25961,7 @@ MonoBehaviour:
   connectControl: {fileID: 5275598608476881908}
   numberGens:
   - {fileID: 0}
-  playMusic: 
+  music: play
   signalInvokeStart: {fileID: 11400000, guid: 1c8954bb744cbad4e9567fecb9482514, type: 2}
   signalInvokeNewRound: {fileID: 11400000, guid: f2ed05615ad881f4b89920a3d67d7d02, type: 2}
   signalInvokeAttackFinish: {fileID: 11400000, guid: 9259a94bd49ea374dbb947259ae09167, type: 2}

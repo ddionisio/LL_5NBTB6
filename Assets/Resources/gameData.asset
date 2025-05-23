@@ -85,8 +85,8 @@ MonoBehaviour:
     playIndex: 3
     progressCount: 0
   end:
-    name: 
-    path: 
+    name: end
+    path: Assets/Scenes/end.unity
   ranks:
   - grade: S+
     icon: {fileID: 21300000, guid: efb30510923c8e341a94021d37b90f02, type: 3}

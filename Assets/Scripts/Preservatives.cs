@@ -19,6 +19,7 @@ public class Preservatives : MonoBehaviour {
 	public M8.ColorFromPaletteBase _colorFromPalette;
 	public M8.SpriteColorGroup _spriteColorGroup;
 	public TextMeshProUGUI _textGUI;
+	public TMP_Text _textTMP;
 	public M8.TextMeshPro.TextMeshProInteger _textInt;
 
 	void Awake() {
@@ -87,6 +88,12 @@ public class Preservatives : MonoBehaviour {
 
 		if(_textGUI) {
 			_textGUI.color = Color.white;
+			_textGUI.alpha = 1f;
+		}
+		
+		if(_textTMP) {
+			_textTMP.color = Color.white;
+			_textTMP.alpha = 1f;
 		}
 
 		if(_textInt) {

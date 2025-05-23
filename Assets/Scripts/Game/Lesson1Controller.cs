@@ -16,6 +16,10 @@ public class Lesson1Controller : GameModeController<Lesson1Controller> {
 	public ModalDialogFlowIncremental dialogPlaceValueDistribute;
 	public ModalDialogFlowIncremental dialogEnd;
 
+	[Header("Music")]
+	[M8.MusicPlaylist]
+	public string music;
+
 	protected override void OnInstanceDeinit() {
 		base.OnInstanceDeinit();
 	}
@@ -30,6 +34,9 @@ public class Lesson1Controller : GameModeController<Lesson1Controller> {
 
 	protected override IEnumerator Start() {
 		yield return base.Start();
+
+		if(!string.IsNullOrEmpty(music))
+			M8.MusicPlaylist.instance.Play(music, true, false);
 
 		//intro
 		blobsDisplay.rootGO.SetActive(true);

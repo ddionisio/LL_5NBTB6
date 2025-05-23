@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/start.unity
     guid: 3e914497f890b5949b5e844e26dea200
   - enabled: 1
+    path: Assets/Scenes/end.unity
+    guid: 6a2085ca3bf42864ca4e3d3e38969e83
+  - enabled: 1
     path: Assets/Scenes/interlude.unity
     guid: ba1cc092199c65d459e7b30c31d7884f
   - enabled: 1

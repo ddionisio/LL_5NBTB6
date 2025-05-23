@@ -39,6 +39,10 @@ public class InterludeController : GameModeController<InterludeController> {
 	public float nextDelay = 1f;
 	public float endDelay = 2f;
 
+	[Header("Music")]
+	[M8.MusicPlaylist]
+	public string music;
+
 	[Header("Debug")]
 	public bool isDebug;
 	public GameData.LevelMode debugLevelMode;
@@ -106,7 +110,10 @@ public class InterludeController : GameModeController<InterludeController> {
 
 	protected override IEnumerator Start() {
 		yield return base.Start();
-				
+
+		if(!string.IsNullOrEmpty(music))
+			M8.MusicPlaylist.instance.Play(music, false, false);
+
 		if(mLevelMode == GameData.LevelMode.Next) {
 			yield return new WaitForSeconds(startDelay);
 

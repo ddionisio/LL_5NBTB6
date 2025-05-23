@@ -31,6 +31,17 @@
     "placeHundreds": "Hundreds",
     "areaModel": "Area Model",
     "areaModelDistribute": "Area Model Distribute",
+    "opDivision": "Operation Divide",
+    "dividend": "Dividend",
+    "divisor": "Divisor",
+    "quotient": "Quotient",
+    "intro_alert_0": "Danger!",
+    "intro_alert_1": "Multiple blobs of epic proportion detected!",
+    "intro_alert_2": "It seems these blobs came from a lab, and have somehow grown uncontrollably.",
+    "intro_alert_3": "We must find a way to shrink them back!",
+    "intro_op_0": "According to the latest studies of blobology, the only way to shrink them is by the power of the divide operation.",
+    "intro_op_1": "Divide and conquer, as they say!",
+    "intro_op_2": "Go forth, our intrepid hero! Use your mathematical might to vanquish these menacing blobs!",
     "lesson1_intro_0": "Dividing a large number can be daunting, but with the right trick, it can be a breeze!",
     "lesson1_intro_1": "Let’s briefly examine a useful mathematical principle that will help us.",
     "lesson1_placeValue_0": "First, let’s take a quick look at how large numbers are arranged by single digit numbers.",
@@ -81,6 +92,9 @@
     "split_op_partial_next_instruct_2": "If the resulting value is less than zero, then try again with a smaller multiplication number!",
     "split_op_partial_success_0": "Good! The blob’s value has been reduced, and a partial quotient blob has appeared.",
     "split_op_partial_success_1": "Splitting up large numbers this way makes it easier to deal with two or more-digit divisors!",
-    "split_op_partial_success_2": "I’ve said all that I can to help you, now go forth and defeat the rest of these mega blobs!"
+    "split_op_partial_success_2": "I’ve said all that I can to help you, now go forth and defeat the rest of these mega blobs!",
+    "end_congrats": "CONGRATULATIONS!",
+    "end_desc": "You have vanquished all the mega blobs! Peace has returned to the world once more!",
+    "end_thanks": "Thank you for playing!"
   }
 }

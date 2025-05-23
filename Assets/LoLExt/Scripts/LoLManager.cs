@@ -149,6 +149,8 @@ namespace LoLExt {
             }
         }
 
+        public bool isSpeakQueueActive { get { return mSpeakQueueRout != null; } }
+
         public event OnCallback scoreUpdateCallback;
         public event OnCallback progressCallback;
         public event OnCallback completeCallback;

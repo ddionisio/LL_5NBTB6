@@ -16,4 +16,10 @@ MonoBehaviour:
   editorLanguageCode: en
   editorLanguageRef: language.json
   editorLanguagePathExtra: D:\Lab\Legends of Learning\LL_5NBTB6\Assets\_Mockup\language.json
-  languageExtraInfos: []
+  languageExtraInfos:
+  - key: end_congrats
+    voiceDuration: 2.5
+  - key: end_desc
+    voiceDuration: 5.5
+  - key: end_thanks
+    voiceDuration: 2

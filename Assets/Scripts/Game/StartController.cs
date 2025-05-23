@@ -15,6 +15,15 @@ public class StartController : GameModeController<StartController> {
 	public Button newButton;
 	public Button continueButton;
 
+	[Header("Intro")]
+	public GameObject introGO;
+	public M8.Animator.Animate introAnimator;
+	public AnimatorEnterExit introAttackIllustrate;
+
+	[Header("Intro Dialog")]
+	public ModalDialogFlowIncremental dialogIntro;
+	public ModalDialogFlowIncremental dialogIntroOp;
+
 	[Header("Music")]
 	[M8.MusicPlaylist]
 	public string music;
@@ -24,6 +33,9 @@ public class StartController : GameModeController<StartController> {
 
 		if(loadingGO) loadingGO.SetActive(true);
 		if(readyGO) readyGO.SetActive(false);
+
+		if(introGO) introGO.SetActive(false);
+		if(introAttackIllustrate) introAttackIllustrate.rootGO.SetActive(false);
 
 		//Setup Play
 		if(newButton) newButton.onClick.AddListener(OnPlayNew);
@@ -55,6 +67,22 @@ public class StartController : GameModeController<StartController> {
 	IEnumerator DoIntro() {
 		if(readyAnim)
 			yield return readyAnim.PlayExitWait();
+
+		if(introGO) introGO.SetActive(true);
+
+		if(introAnimator)
+			yield return introAnimator.PlayWait(0); //assume there's just one take
+
+		yield return dialogIntro.Play();
+
+		if(introAttackIllustrate) {
+			introAttackIllustrate.rootGO.SetActive(true);
+			yield return introAttackIllustrate.PlayEnterWait();
+		}
+
+		yield return dialogIntroOp.Play();
+
+		yield return introAttackIllustrate.PlayExitWait();
 
 		GameData.instance.NewGame();
 	}
