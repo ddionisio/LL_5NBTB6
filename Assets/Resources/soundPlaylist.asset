@@ -29,6 +29,17 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 358a5089757a692449f3849b054b8e0c, type: 3}
     - {fileID: 8300000, guid: 0a0e6a27f0058f843a5c6b091f4f2c38, type: 3}
     spatialBlend: 0
+  - name: attackReady
+    clip: {fileID: 8300000, guid: 0df45f765a49d064da5d1799471e61c3, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: attack
+    clip: {fileID: 0}
+    clipVariants:
+    - {fileID: 8300000, guid: ee2cf190a6168ad4e9ed811e25104759, type: 3}
+    - {fileID: 8300000, guid: 31d899316c696c74b92fb8d44cbfde0d, type: 3}
+    - {fileID: 8300000, guid: ea77366ff30f8de479ffe49bfc1870d3, type: 3}
+    spatialBlend: 0
   - name: swipe
     clip: {fileID: 8300000, guid: cac0c56c0cb90fc42bc17d3b589ac1ef, type: 3}
     clipVariants: []
@@ -39,6 +50,45 @@ MonoBehaviour:
     spatialBlend: 0
   - name: swipe_out
     clip: {fileID: 8300000, guid: 47c256ea65dff75489ada61925c20702, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: blast
+    clip: {fileID: 8300000, guid: 41bffbf341940e243b4533069d298f90, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: rumble
+    clip: {fileID: 8300000, guid: 7ac59102b09424346941f691d04f4f5f, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: success
+    clip: {fileID: 8300000, guid: 51f819ccee60cd040b611f7ce0491a9e, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: positive
+    clip: {fileID: 0}
+    clipVariants:
+    - {fileID: 8300000, guid: c571fc20928f2d34f979fdfd4b9c7572, type: 3}
+    - {fileID: 8300000, guid: 4ea712712944ed047a590e76f3df58e9, type: 3}
+    - {fileID: 8300000, guid: 38e856685ae15cc488409e6b3214e69a, type: 3}
+    spatialBlend: 0
+  - name: correct
+    clip: {fileID: 8300000, guid: 331413503a37d074c817dee0eddf097b, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: clear
+    clip: {fileID: 8300000, guid: c168e96b11cb83e499f9dce0f50a1fd1, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: error
+    clip: {fileID: 8300000, guid: 1e1b18f65e30e0445bdd276ff4a23f88, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: fail
+    clip: {fileID: 8300000, guid: fa4a4c70a4ae7b3449921c80c83a4ea6, type: 3}
+    clipVariants: []
+    spatialBlend: 0
+  - name: death
+    clip: {fileID: 8300000, guid: f880da7dcc2a51946944fe43a5b6db56, type: 3}
     clipVariants: []
     spatialBlend: 0
   max: 32

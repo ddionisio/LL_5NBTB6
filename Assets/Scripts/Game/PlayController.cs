@@ -12,6 +12,22 @@ public class PlayController : GameModeController<PlayController> {
 	[Header("Spawn Control")]
 	public BlobNumberGenBase[] numberGens;
 
+	[Header("SFX")]
+	[M8.SoundPlaylist]
+	public string sfxBlobClick;
+	[M8.SoundPlaylist]
+	public string sfxBlobDrag;
+	[M8.SoundPlaylist]
+	public string sfxBlobSolved;
+	[M8.SoundPlaylist]
+	public string sfxBlobFail;
+	[M8.SoundPlaylist]
+	public string sfxStartOver;
+	[M8.SoundPlaylist]
+	public string sfxAttackReady;
+	[M8.SoundPlaylist]
+	public string sfxVictory;
+
 	[Header("Music")]
 	[M8.MusicPlaylist]
 	public string music;
@@ -185,6 +201,9 @@ public class PlayController : GameModeController<PlayController> {
 			yield return new WaitForSeconds(1f);
 
 			if(mIsAttackComplete) {
+				if(!string.IsNullOrEmpty(sfxAttackReady))
+					M8.SoundPlaylist.instance.Play(sfxAttackReady, false);
+
 				//success clear the blobs
 				var blobActives = boardControl.blobActives;
 				for(int i = 0; i < blobActives.Count; i++) {
@@ -221,6 +240,9 @@ public class PlayController : GameModeController<PlayController> {
 				yield return new WaitForSeconds(1f);
 			}
 			else if(mFailRoundCount >= gameDat.playFailRoundCount) {
+				if(!string.IsNullOrEmpty(sfxStartOver))
+					M8.SoundPlaylist.instance.Play(sfxStartOver, false);
+
 				//clear all blobs
 				boardControl.DespawnAllBlobs();
 
@@ -238,6 +260,9 @@ public class PlayController : GameModeController<PlayController> {
 
 		if(signalInvokeEnd)
 			signalInvokeEnd.Invoke();
+
+		if(!string.IsNullOrEmpty(sfxVictory))
+			M8.SoundPlaylist.instance.Play(sfxVictory, false);
 
 		//board end
 		yield return boardControl.PlayEnd();
@@ -319,6 +344,8 @@ public class PlayController : GameModeController<PlayController> {
 				}
 
 				//play success sfx
+				if(!string.IsNullOrEmpty(sfxBlobSolved))
+					M8.SoundPlaylist.instance.Play(sfxBlobSolved, false);
 
 				//wait for blobs to release
 				do {
@@ -464,6 +491,9 @@ public class PlayController : GameModeController<PlayController> {
 		if(!blobDivisor)
 			return;
 
+		if(!string.IsNullOrEmpty(sfxBlobClick))
+			M8.SoundPlaylist.instance.Play(sfxBlobClick, false);
+
 		//open split modal
 		switch(blob.data.splitMode) {
 			case BlobData.SplitMode.Tenths:
@@ -489,6 +519,9 @@ public class PlayController : GameModeController<PlayController> {
 	void OnSignalBlobDragBegin(Blob blob) {
 		if(connectControl.isDragDisabled)
 			return;
+
+		if(!string.IsNullOrEmpty(sfxBlobClick))
+			M8.SoundPlaylist.instance.Play(sfxBlobDrag, false);
 
 		var blobActives = boardControl.blobActives;
 		for(int i = 0; i < blobActives.Count; i++) {
@@ -600,6 +633,8 @@ public class PlayController : GameModeController<PlayController> {
 
 	private void Fail() {
 		//play fail sfx
+		if(!string.IsNullOrEmpty(sfxBlobFail))
+			M8.SoundPlaylist.instance.Play(sfxBlobFail, false);
 
 		boardControl.PlayerFail();
 

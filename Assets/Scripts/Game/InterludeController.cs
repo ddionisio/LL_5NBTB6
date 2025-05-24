@@ -39,6 +39,14 @@ public class InterludeController : GameModeController<InterludeController> {
 	public float nextDelay = 1f;
 	public float endDelay = 2f;
 
+	[Header("SFX")]
+	[M8.SoundPlaylist]
+	public string sfxDefeat;
+	[M8.SoundPlaylist]
+	public string sfxFill;
+	[M8.SoundPlaylist]
+	public string sfxNext;
+
 	[Header("Music")]
 	[M8.MusicPlaylist]
 	public string music;
@@ -122,11 +130,17 @@ public class InterludeController : GameModeController<InterludeController> {
 				var curPalette = curLvl.palette;
 
 				//defeat current blob
+				if(!string.IsNullOrEmpty(sfxDefeat))
+					M8.SoundPlaylist.instance.Play(sfxDefeat, false);
+
 				yield return curLvl.blobAnim.PlayExitWait();
 
 				curLvl.blobAnim.rootGO.SetActive(false);
 
 				//fill pip
+				if(!string.IsNullOrEmpty(sfxFill))
+					M8.SoundPlaylist.instance.Play(sfxFill, false);
+
 				curLvl.pip.mode = InterludePip.Mode.Fill;
 				while(curLvl.pip.isBusy)
 					yield return null;
@@ -137,6 +151,9 @@ public class InterludeController : GameModeController<InterludeController> {
 				int levelNextIndex = mLevelIndex + 1;
 				var nextLvl = levelNextIndex >= 0 && levelNextIndex < levels.Length ? levels[levelNextIndex] : null;
 				if(nextLvl != null) {
+					if(!string.IsNullOrEmpty(sfxNext))
+						M8.SoundPlaylist.instance.Play(sfxNext, false);
+
 					var nextPalette = nextLvl.palette;
 
 					float sRotAngle = mRotAngle, eRotAngle = mRotAngle + 90f;

@@ -39,6 +39,6 @@ public class EndController : GameModeController<EndController> {
 
 		lolMgr.Complete();
 
-		Debug.Log("time took: " + (Time.time - t).ToString());
+		//Debug.Log("time took: " + (Time.time - t).ToString());
 	}
 }

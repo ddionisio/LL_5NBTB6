@@ -52,6 +52,14 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 	public float reduceNumberMoveHeight;
 	public float reduceNumberCountDelay = 0.3f;
 
+	[Header("SFX")]
+	[M8.SoundPlaylist]
+	public string sfxNumberJump;
+	[M8.SoundPlaylist]
+	public string sfxCorrect;
+	[M8.SoundPlaylist]
+	public string sfxError;
+
 	[Header("Signal Invoke")]
 	public M8.SignalString signalInvokeSetOpText;
 	public M8.SignalBoolean signalInvokeInputActive;
@@ -328,6 +336,8 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 
 		if(isOpSuccess) {
 			//sfx
+			if(!string.IsNullOrEmpty(sfxCorrect))
+				M8.SoundPlaylist.instance.Play(sfxCorrect, false);
 
 			if(blobDivisorWidget) blobDivisorWidget.Correct();
 
@@ -341,6 +351,8 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 		}
 		else {
 			//sfx
+			if(!string.IsNullOrEmpty(sfxError))
+				M8.SoundPlaylist.instance.Play(sfxError, false);
 
 			if(blobDivisorWidget) blobDivisorWidget.Error();
 
@@ -363,6 +375,9 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 
 				//move output number to dividend
 				if(reduceNumberText) {
+					if(!string.IsNullOrEmpty(sfxNumberJump))
+						M8.SoundPlaylist.instance.Play(sfxNumberJump, false);
+
 					reduceNumberText.text = (-mOutputNumber).ToString();
 					reduceNumberText.gameObject.SetActive(true);
 
@@ -405,6 +420,9 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 				yield return mWaitOutput;
 
 				if(newDividendNumber >= 0) { //success
+					if(!string.IsNullOrEmpty(sfxCorrect))
+						M8.SoundPlaylist.instance.Play(sfxCorrect, false);
+
 					if(mBlobDividendWidget) mBlobDividendWidget.Correct();
 
 					//wait for blob
@@ -416,6 +434,9 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 					actionResult.splitValue = mQuotientNumber;
 				}
 				else { //output is greater than dividend
+					if(!string.IsNullOrEmpty(sfxError))
+						M8.SoundPlaylist.instance.Play(sfxError, false);
+
 					if(mBlobDividendWidget) mBlobDividendWidget.Error();
 
 					//wait for blob

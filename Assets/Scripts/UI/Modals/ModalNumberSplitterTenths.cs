@@ -39,6 +39,16 @@ public class ModalNumberSplitterTenths : M8.ModalController, M8.IModalPush, M8.I
 	public GameObject splitIndicatorLeftGO;
 	public GameObject splitIndicatorRightGO;
 
+	[Header("SFX")]
+	[M8.SoundPlaylist]
+	public string sfxDigitJumpBegin;
+	[M8.SoundPlaylist]
+	public string sfxDigitJumpEnd;
+	[M8.SoundPlaylist]
+	public string sfxCorrect;
+	[M8.SoundPlaylist]
+	public string sfxError;
+
 	[Header("Signal Invoke")]
 	public SignalBlobActionResult signalInvokeResult;
 
@@ -271,6 +281,9 @@ public class ModalNumberSplitterTenths : M8.ModalController, M8.IModalPush, M8.I
 			}
 		}
 
+		if(deltaDigitVal > fromDigitVal) //when both checks failed
+			deltaDigitVal = fromDigitVal;
+
 		fromDigitVal -= deltaDigitVal;
 		toDigitVal += deltaDigitVal;
 
@@ -278,6 +291,8 @@ public class ModalNumberSplitterTenths : M8.ModalController, M8.IModalPush, M8.I
 
 		if(fromDigitGroup == dividendDigitGroupLeft && blobLeftDividend) blobLeftDividend.Pulse();
 		else if(fromDigitGroup == dividendDigitGroupRight && blobRightDividend) blobRightDividend.Pulse();
+
+		if(!string.IsNullOrEmpty(sfxDigitJumpBegin)) M8.SoundPlaylist.instance.Play(sfxDigitJumpBegin, false);
 
 		digitWidgetFrom.PlayPulse();
 
@@ -318,6 +333,8 @@ public class ModalNumberSplitterTenths : M8.ModalController, M8.IModalPush, M8.I
 
 		digitWidgetTo.PlayPulse();
 
+		if(!string.IsNullOrEmpty(sfxDigitJumpEnd)) M8.SoundPlaylist.instance.Play(sfxDigitJumpEnd, false);
+
 		yield return mWaitPulse;
 
 		mRout = null;
@@ -346,6 +363,15 @@ public class ModalNumberSplitterTenths : M8.ModalController, M8.IModalPush, M8.I
 				blobLeftDivisor.Error();
 		}
 
+		if(isLeftValid) {
+			if(!string.IsNullOrEmpty(sfxCorrect))
+				M8.SoundPlaylist.instance.Play(sfxCorrect, false);
+		}
+		else {
+			if(!string.IsNullOrEmpty(sfxError))
+				M8.SoundPlaylist.instance.Play(sfxError, false);
+		}
+
 		yield return mWaitBlob;
 
 		if(blobRightDividend) {
@@ -360,6 +386,15 @@ public class ModalNumberSplitterTenths : M8.ModalController, M8.IModalPush, M8.I
 				blobRightDivisor.Correct();
 			else
 				blobRightDivisor.Error();
+		}
+
+		if(isRightValid) {
+			if(!string.IsNullOrEmpty(sfxCorrect))
+				M8.SoundPlaylist.instance.Play(sfxCorrect, false);
+		}
+		else {
+			if(!string.IsNullOrEmpty(sfxError))
+				M8.SoundPlaylist.instance.Play(sfxError, false);
 		}
 
 		yield return mWaitBlob;
@@ -386,7 +421,7 @@ public class ModalNumberSplitterTenths : M8.ModalController, M8.IModalPush, M8.I
 
 			if(mMistakeCount == errorCount) { //fail
 				if(signalInvokeResult)
-					signalInvokeResult.Invoke(new BlobActionResult { type = BlobActionResult.Type.Fail });
+					signalInvokeResult.Invoke(new BlobActionResult { type = BlobActionResult.Type.Fail, blobDividend = mBlobDividend, blobDivisor = mBlobDivisor });
 
 				Close();
 			}

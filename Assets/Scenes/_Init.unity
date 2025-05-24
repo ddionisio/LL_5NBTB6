@@ -122,6 +122,66 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &408206877
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 408206879}
+  - component: {fileID: 408206878}
+  m_Layer: 0
+  m_Name: preservatives
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &408206878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 408206877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193cf1f800d895343a0800b9d24ac704, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _cam: {fileID: 0}
+  _img: {fileID: 0}
+  _canvasGroup: {fileID: 0}
+  _rectTransform: {fileID: 0}
+  _blob: {fileID: 0}
+  _blobWidget: {fileID: 0}
+  _spriteRenderer: {fileID: 0}
+  _spriteColorAlpha: {fileID: 0}
+  _spriteColorAlphaGroup: {fileID: 0}
+  _particleSystem: {fileID: 0}
+  _sfxPlayProx: {fileID: 0}
+  _colorFromPalette: {fileID: 0}
+  _spriteColorGroup: {fileID: 0}
+  _textGUI: {fileID: 0}
+  _textTMP: {fileID: 0}
+  _textInt: {fileID: 0}
+--- !u!4 &408206879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 408206877}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &513061747
 GameObject:
   m_ObjectHideFlags: 0
@@ -292,3 +352,4 @@ SceneRoots:
   - {fileID: 1163038290098145595}
   - {fileID: 596775098463038436}
   - {fileID: 513061749}
+  - {fileID: 408206879}

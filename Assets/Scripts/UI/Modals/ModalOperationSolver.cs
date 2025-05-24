@@ -31,6 +31,12 @@ public class ModalOperationSolver : M8.ModalController, M8.IModalPush, M8.IModal
 	public TMP_Text numberEq;
 	public GameObject numberEqHighlightGO;
 
+	[Header("SFX")]
+	[M8.SoundPlaylist]
+	public string sfxCorrect;
+	[M8.SoundPlaylist]
+	public string sfxError;
+
 	[Header("Signal Invoke")]
 	public M8.SignalBoolean signalInvokeInputActive;
 	public M8.SignalFloat signalInvokeValueChange;
@@ -219,6 +225,9 @@ public class ModalOperationSolver : M8.ModalController, M8.IModalPush, M8.IModal
 
 		if(signalInvokeCorrect) signalInvokeCorrect.Invoke();
 
+		if(!string.IsNullOrEmpty(sfxCorrect))
+			M8.SoundPlaylist.instance.Play(sfxCorrect, false);
+
 		//animate
 		if(mBlobLeftWidget) mBlobLeftWidget.Correct();
 
@@ -243,6 +252,9 @@ public class ModalOperationSolver : M8.ModalController, M8.IModalPush, M8.IModal
 		if(signalInvokeInputActive) signalInvokeInputActive.Invoke(false);
 
 		if(signalInvokeError) signalInvokeError.Invoke();
+
+		if(!string.IsNullOrEmpty(sfxError))
+			M8.SoundPlaylist.instance.Play(sfxError, false);
 
 		var errorMaxCount = GameData.instance.playErrorCount;
 

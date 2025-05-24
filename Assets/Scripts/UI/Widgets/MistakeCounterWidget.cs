@@ -31,6 +31,10 @@ public class MistakeCounterWidget : MonoBehaviour {
 	[SerializeField]
 	int _takeHurt = -1;
 
+	[Header("SFX")]
+	[M8.SoundPlaylist]
+	public string sfxHurt;
+
 	public bool isBusy { get { return mRout != null; } }
 
 	private DG.Tweening.EaseFunction mFillChangeEaseFunc;
@@ -79,6 +83,9 @@ public class MistakeCounterWidget : MonoBehaviour {
 			var newFillVal = ((float)mistakeFillCount) / maxMistakeCount;
 
 			if(newFillVal < curFillVal) {
+				if(!string.IsNullOrEmpty(sfxHurt))
+					M8.SoundPlaylist.instance.Play(sfxHurt, false);
+
 				if(_takeHurt != -1)
 					_animator.Play(_takeHurt);
 			}

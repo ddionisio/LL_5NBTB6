@@ -31,6 +31,10 @@ public class BoardController : MonoBehaviour {
 	[M8.Animator.TakeSelector]
 	public int takeEnd = -1;
 
+	[Header("SFX")]
+	[M8.SoundPlaylist]
+	public string sfxAttack;
+
 	public bool active { get { return gameObject.activeSelf; } set { gameObject.SetActive(value); } }
 
 	public Vector2 position {
@@ -123,6 +127,9 @@ public class BoardController : MonoBehaviour {
 		var attackCount = 0;
 
 		for(; attackCount < mAttackEntities.Length && attackHUD.attackValue > 0; attackCount++) {
+			if(!string.IsNullOrEmpty(sfxAttack))
+				M8.SoundPlaylist.instance.Play(sfxAttack, false);
+
 			var ent = mAttackEntities[attackCount];
 
 			var start = attackOrigin + Random.insideUnitCircle * attackStartRadius;

@@ -1,0 +1,6 @@
+Blobs of titanic proportion have appeared throughout the world. Help us vanquish these menaces with the power of division!
+
+
+Touch or click on a blob that are sparkling to split them.
+
+Use the touchpad or mouse to drag and connect two blobs to merge them. Once all blobs have been merged into one golden blob, the mega blob will take damage.

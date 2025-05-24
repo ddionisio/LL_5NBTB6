@@ -2002,6 +2002,7 @@ MonoBehaviour:
   warningDelay: 7
   _animator: {fileID: 4110776544704394277}
   _takeHurt: 0
+  sfxHurt: 
 --- !u!114 &7547744994179529804
 MonoBehaviour:
   m_ObjectHideFlags: 0
