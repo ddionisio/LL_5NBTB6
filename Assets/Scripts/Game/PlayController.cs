@@ -1,8 +1,8 @@
+using LoLExt;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using LoLExt;
+using static UnityEngine.Networking.UnityWebRequest;
 
 public class PlayController : GameModeController<PlayController> {
 	[Header("Controls")]
@@ -450,11 +450,45 @@ public class PlayController : GameModeController<PlayController> {
 
 				var splitCount = blobDividend.splitCount > 1 ? blobDividend.splitCount - 1 : 0;
 
-				if(blobSplitDataLeft)
-					boardControl.Spawn(new BlobSpawnInfo(blobSplitDataLeft, blobPos + dir * blobSplitDataLeft.spawnPointCheckRadius, leftValue, blobDividend.divisor, splitCount));
+				if(blobSplitDataLeft) {
+					//check if we solved an operator if we are spawning a quotient
+					var opSolvedInd = -1;
+					if(blobSplitDataLeft.type == BlobData.Type.Quotient)
+						opSolvedInd = CheckOpSolved(leftValue);
+										
+					if(opSolvedInd != -1) {
+						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataLeft, Blob.State.Solved, blobPos + dir * blobSplitDataLeft.spawnPointCheckRadius, leftValue, blobDividend.divisor));
 
-				if(blobSplitDataRight)
-					boardControl.Spawn(new BlobSpawnInfo(blobSplitDataRight, blobPos - dir * blobSplitDataRight.spawnPointCheckRadius, rightValue, blobDividend.divisor, splitCount));
+						//let display know an operation was solved
+						if(signalInvokeOpSuccess)
+							signalInvokeOpSuccess.Invoke(opSolvedInd);
+
+						//if all are matched, attack is complete
+						mIsAttackComplete = currentNumberGen.opSolvedCount == currentNumberGen.opCount;
+					}
+					else
+						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataLeft, blobPos + dir * blobSplitDataLeft.spawnPointCheckRadius, leftValue, blobDividend.divisor, splitCount));
+				}
+
+				if(blobSplitDataRight) {
+					//check if we solved an operator if we are spawning a quotient
+					var opSolvedInd = -1;
+					if(blobSplitDataRight.type == BlobData.Type.Quotient)
+						opSolvedInd = CheckOpSolved(rightValue);
+
+					if(opSolvedInd != -1) {
+						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataRight, Blob.State.Solved, blobPos - dir * blobSplitDataRight.spawnPointCheckRadius, rightValue, blobDividend.divisor));
+
+						//let display know an operation was solved
+						if(signalInvokeOpSuccess)
+							signalInvokeOpSuccess.Invoke(opSolvedInd);
+
+						//if all are matched, attack is complete
+						mIsAttackComplete = currentNumberGen.opSolvedCount == currentNumberGen.opCount;
+					}
+					else
+						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataRight, blobPos - dir * blobSplitDataRight.spawnPointCheckRadius, rightValue, blobDividend.divisor, splitCount));
+				}
 
 				//spawn a duplicate divisor
 				if(blobDivisor) {
@@ -479,6 +513,24 @@ public class PlayController : GameModeController<PlayController> {
 
 		if(camCtrl)
 			camCtrl.raycastTarget = true;
+	}
+
+	private int CheckOpSolved(int val) {
+		var opInd = -1;
+
+		var opCount = currentNumberGen.opCount;
+
+		for(int i = 0; i < opCount; i++) {
+			var op = currentNumberGen.GetOperation(i);
+
+			if(op.equal == val) {
+				currentNumberGen.SetOperationSolved(i, true);
+				opInd = i;
+				break;
+			}
+		}
+
+		return opInd;
 	}
 
 	void OnSignalBlobClick(Blob blob) {
