@@ -7,11 +7,14 @@ using TMPro;
 public class HUDAttackValue : MonoBehaviour {
     [Header("Config")]
     public float changeDelay = 0.5f;
-
+    public Gradient attackValueColorGradient;
+    
     [Header("Display")]
     public TMP_Text text;
+    public SpriteRenderer attackIconRender;
+	public GameObject attackFullActiveGO;
 
-    [Header("Animation")]
+	[Header("Animation")]
     public M8.Animator.Animate animator;
     [M8.Animator.TakeSelector]
     public int takeUpdate = -1;
@@ -29,7 +32,7 @@ public class HUDAttackValue : MonoBehaviour {
                 mAttackValue = val;
                 mIsUpdate = true;
 
-                if(takeUpdate != -1)
+				if(takeUpdate != -1)
                     animator.Play(takeUpdate);
             }
         }
@@ -88,5 +91,14 @@ public class HUDAttackValue : MonoBehaviour {
     private void RefreshValueDisplay() {
         if(text)
 			text.text = mCurAttackValue.ToString();
+
+		//determine attack icon color
+		var attackScale = Mathf.Clamp01(mCurAttackValueF / GameData.instance.playAttackCapacity);
+
+		//determine if our attack is fully effective
+		var isAttackFull = attackScale >= GameData.instance.playAttackFullThreshold;
+
+        if(attackIconRender) attackIconRender.color = attackValueColorGradient.Evaluate(attackScale);
+        if(attackFullActiveGO) attackFullActiveGO.SetActive(isAttackFull);
 	}
 }

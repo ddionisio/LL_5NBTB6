@@ -467,7 +467,7 @@ public class PlayController : GameModeController<PlayController> {
 						mIsAttackComplete = currentNumberGen.opSolvedCount == currentNumberGen.opCount;
 					}
 					else
-						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataLeft, blobPos + dir * blobSplitDataLeft.spawnPointCheckRadius, leftValue, blobDividend.divisor, splitCount));
+						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataLeft, blobPos + dir * blobSplitDataLeft.spawnPointCheckRadius, leftValue, blobDividend.divisor, Mathf.Min(splitCount, blobSplitDataLeft.splitCount)));
 				}
 
 				if(blobSplitDataRight) {
@@ -487,7 +487,7 @@ public class PlayController : GameModeController<PlayController> {
 						mIsAttackComplete = currentNumberGen.opSolvedCount == currentNumberGen.opCount;
 					}
 					else
-						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataRight, blobPos - dir * blobSplitDataRight.spawnPointCheckRadius, rightValue, blobDividend.divisor, splitCount));
+						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataRight, blobPos - dir * blobSplitDataRight.spawnPointCheckRadius, rightValue, blobDividend.divisor, Mathf.Min(splitCount, blobSplitDataRight.splitCount)));
 				}
 
 				//spawn a duplicate divisor

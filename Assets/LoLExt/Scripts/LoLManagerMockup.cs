@@ -1,11 +1,13 @@
-﻿using System.Collections;
+﻿using M8;
+using MiniJSON;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using MiniJSON;
-
 namespace LoLExt {
     public class LoLManagerMockup : LoLManager {
+        const string progKey = "progress";
+
         [Header("Mockup")]
         public TextAsset localizeText;
 
@@ -19,7 +21,14 @@ namespace LoLExt {
 
             mCurProgress = Mathf.Clamp(progress, 0, progressMax);
 
-            ProgressCallback();
+            if(userData) {
+                userData.SetInt(scoreKey, curScore);
+                userData.SetInt(progKey, mCurProgress);
+
+                userData.Save();
+            }
+
+			ProgressCallback();
         }
 
         public override void Complete() {
@@ -30,7 +39,14 @@ namespace LoLExt {
             mLangCode = "en";
             mCurProgress = 0;
 
-            ApplySettings();
+			if(userData) {
+				userData.Load();
+
+				mCurScore = userData.GetInt(scoreKey, 0);
+                mCurProgress = userData.GetInt(progKey, 0);
+			}
+
+			ApplySettings();
 
             if(localizeText) {
                 string json = localizeText.text;

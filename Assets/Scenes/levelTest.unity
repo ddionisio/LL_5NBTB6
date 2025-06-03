@@ -122,6 +122,61 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &21206066
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 21206067}
+  - component: {fileID: 21206068}
+  m_Layer: 0
+  m_Name: test (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &21206067
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21206066}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1975695601}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &21206068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21206066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 575123cd0f2693b4eaa1069bd83f3165, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rounds: 1
+  quotientResultCount: 1
+  tensMultRanges:
+  - min: 2
+    max: 9
+  - min: 8
+    max: 14
+  divisors: 020000000300000004000000
+  poolCount: 5
+  blobDividend: {fileID: 11400000, guid: ec5aa06a2c2a27c45ac6a032e88f443d, type: 2}
+  blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
 --- !u!1 &50275166
 GameObject:
   m_ObjectHideFlags: 0
@@ -6780,6 +6835,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1096508824}
+  - {fileID: 21206067}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2015854867
@@ -7825,12 +7881,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5072863734412613655, guid: d13a5cbbfddcaa64893eedcb34138834, type: 3}
       propertyPath: numberGens.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5072863734412613655, guid: d13a5cbbfddcaa64893eedcb34138834, type: 3}
       propertyPath: numberGens.Array.data[0]
       value: 
-      objectReference: {fileID: 1096508825}
+      objectReference: {fileID: 21206068}
     - target: {fileID: 5072863734412613655, guid: d13a5cbbfddcaa64893eedcb34138834, type: 3}
       propertyPath: numberGens.Array.data[1]
       value: 

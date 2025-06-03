@@ -6440,26 +6440,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1133618897}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f74552dcabb3284b8c9471b2e7d5c59, type: 3}
+  m_Script: {fileID: 11500000, guid: 575123cd0f2693b4eaa1069bd83f3165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rounds: 2
   quotientResultCount: 1
+  tensMultRanges:
+  - min: 2
+    max: 9
+  - min: 8
+    max: 12
+  divisors: 030000000400000005000000
+  poolCount: 5
   blobDividend: {fileID: 11400000, guid: ec5aa06a2c2a27c45ac6a032e88f443d, type: 2}
   blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
-  numberPairs:
-  - dividend: 256
-    divisor: 4
-  - dividend: 328
-    divisor: 4
-  - dividend: 315
-    divisor: 5
-  - dividend: 370
-    divisor: 5
-  - dividend: 228
-    divisor: 6
-  - dividend: 468
-    divisor: 6
 --- !u!1 &1319238468
 GameObject:
   m_ObjectHideFlags: 0
@@ -16425,14 +16419,14 @@ MonoBehaviour:
     divisor: 2
   - dividend: 16
     divisor: 2
+  - dividend: 18
+    divisor: 2
   - dividend: 24
     divisor: 4
   - dividend: 32
     divisor: 4
-  - dividend: 45
-    divisor: 5
-  - dividend: 40
-    divisor: 5
+  - dividend: 20
+    divisor: 4
 --- !u!4 &1655055697
 Transform:
   m_ObjectHideFlags: 0

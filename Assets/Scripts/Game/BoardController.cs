@@ -126,7 +126,7 @@ public class BoardController : MonoBehaviour {
 
 		var attackCount = 0;
 
-		for(; attackCount < mAttackEntities.Length && attackHUD.attackValue > 0; attackCount++) {
+		for(; attackCount < mAttackEntities.Length && attackHUD.attackValue > 1; attackCount++) {
 			if(!string.IsNullOrEmpty(sfxAttack))
 				M8.SoundPlaylist.instance.Play(sfxAttack, false);
 

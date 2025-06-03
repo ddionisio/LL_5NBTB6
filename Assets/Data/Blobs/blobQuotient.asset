@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 2
   _splitMode: 0
+  _splitCount: 0
   _splitInfos: []
+  _reduceInfos: []
   _mergeInfos:
   - data: {fileID: 11400000}
-    digitLimit: 2
+    valueMax: 25
   - data: {fileID: 11400000, guid: f5fe7606afee9924d97320605e883b88, type: 2}
-    digitLimit: 0
+    valueMax: 0
   _template: {fileID: 7695177907930894477, guid: 7869739b636239343a39ccdc94d78ab8, type: 3}
   _palette: {fileID: 11400000, guid: e4c821f55d214c64b8112412e95a5c81, type: 2}

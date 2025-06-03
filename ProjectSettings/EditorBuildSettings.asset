@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/_Init.unity
     guid: ecab255b6cf49ef48a753a01da8742d8
+  - enabled: 0
+    path: Assets/Scenes/_InitMockup.unity
+    guid: 057a443cd176382429e6197fcc3f72fa
   - enabled: 1
     path: Assets/Scenes/start.unity
     guid: 3e914497f890b5949b5e844e26dea200

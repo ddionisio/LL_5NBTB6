@@ -19,7 +19,7 @@ public class BlobData : ScriptableObject {
     [System.Serializable]
     public struct SpawnInfo {
         public BlobData data;
-        public int digitLimit; //set to 0 for no limit
+        public int valueMax; //set to 0 for no limit
     }
 
     [Header("Data")]
@@ -88,12 +88,10 @@ public class BlobData : ScriptableObject {
 	}
 
     private BlobData GetData(SpawnInfo[] infos, int val) {
-		var digitCount = WholeNumber.DigitCount(val);
-
         if(infos != null) {
             for(int i = 0; i < infos.Length; i++) {
                 var inf = infos[i];
-                if(inf.digitLimit == 0 || digitCount <= inf.digitLimit)
+                if(inf.valueMax == 0 || val <= inf.valueMax)
                     return inf.data;
             }
         }

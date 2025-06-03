@@ -23,6 +23,9 @@ namespace LoLExt {
 
     [CreateAssetMenu(fileName = "userData", menuName = "LoL/userData")]
     public class LoLSaveData : M8.UserData {
+        public bool isMockup;
+        public string mockupKey = "lol";
+
         public int score { get; private set; }
         public int currentProgress { get; private set; }
         public int maximumProgress { get; private set; }
@@ -33,9 +36,20 @@ namespace LoLExt {
         /// Note: This must be called after LoL has instantiated and ready
         /// </summary>
         public override void Load() {
-            isLoaded = false;
+            if(isMockup) {
+                score = 0;
+                currentProgress = 0;
+                maximumProgress = 0;
 
-            LOLSDK.Instance.LoadState<LoLSaveState>(OnLoaded);
+                mSaveState = new LoLSaveState() { encodedData = PlayerPrefs.GetString(mockupKey, "") };
+
+                base.Load();
+            }
+            else {
+				isLoaded = false;
+
+				LOLSDK.Instance.LoadState<LoLSaveState>(OnLoaded);
+            }
         }
 
         protected override byte[] LoadRawData() {
@@ -48,7 +62,12 @@ namespace LoLExt {
 
             mSaveState.EncodeRawData(dat);
 
-            LOLSDK.Instance.SaveState(mSaveState);
+            if(isMockup) {
+				PlayerPrefs.SetString(mockupKey, mSaveState.encodedData);
+				PlayerPrefs.Save();
+			}
+            else
+                LOLSDK.Instance.SaveState(mSaveState);
         }
 
         protected override void DeleteRawData() {
@@ -57,7 +76,12 @@ namespace LoLExt {
 
             mSaveState.EncodeRawData(new byte[0]);
 
-            LOLSDK.Instance.SaveState(mSaveState);
+            if(isMockup) {
+				PlayerPrefs.SetString(mockupKey, mSaveState.encodedData);
+				PlayerPrefs.Save();
+			}
+            else
+                LOLSDK.Instance.SaveState(mSaveState);
         }
 
         void OnLoaded(State<LoLSaveState> state) {
@@ -73,7 +97,7 @@ namespace LoLExt {
                 currentProgress = 0;
                 maximumProgress = 0;
 
-                mSaveState = new LoLSaveState() { encodedData = "" };
+				mSaveState = new LoLSaveState() { encodedData = "" };
             }
 
             base.Load();

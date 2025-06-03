@@ -17,14 +17,14 @@ MonoBehaviour:
   _splitCount: 4
   _splitInfos:
   - data: {fileID: 11400000, guid: c165b0b8cb5012b418b1bcb8855bb58f, type: 2}
-    digitLimit: 1
+    valueMax: 99
   - data: {fileID: 11400000, guid: f5fe7606afee9924d97320605e883b88, type: 2}
-    digitLimit: 0
+    valueMax: 0
   _reduceInfos:
   - data: {fileID: 11400000, guid: 9bee6fbf7145e7d409cadadeda40383a, type: 2}
-    digitLimit: 1
+    valueMax: 50
   - data: {fileID: 11400000, guid: d28a13b1ae296334ba935f81c6342929, type: 2}
-    digitLimit: 3
+    valueMax: 500
   _mergeInfos: []
   _template: {fileID: 197379733306875679, guid: 171a3e8044e916b4bb30cee41c8a0d89, type: 3}
   _palette: {fileID: 11400000, guid: b35f694f177ceb8408ba3c4dc3e305a0, type: 2}

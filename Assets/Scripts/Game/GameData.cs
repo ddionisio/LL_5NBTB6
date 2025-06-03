@@ -249,6 +249,17 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 	private int mLevelInd = -1;
 	private int mPlayStateInd = -1;
 
+	public int GetRankIndex(float scale) {
+		var _ranks = instance.ranks;
+
+		for(int i = 0; i < _ranks.Length; i++) {
+			if(scale >= _ranks[i].scale)
+				return i;
+		}
+
+		return _ranks.Length - 1;
+	}
+
 	public AttackState GetAttackState(int stateIndex) {
 		if(mLevelInd == -1)
 			GenerateLevelInfo();
@@ -276,6 +287,38 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 		}
 
 		return new LevelStats();
+	}
+
+	public void GetTotalLevelStats(out int totalAttack, out int totalError, out float totalEffective, out int totalScore, out float totalScoreScale) {
+		totalAttack = 0;
+		totalError = 0;
+		totalEffective = 0f;
+		totalScore = 0;
+		totalScoreScale = 0f;
+
+		if(mLevelStates != null) {
+			var count = 0;
+
+			for(int i = 0; i < mLevelStates.Length; i++) {
+				var state = mLevelStates[i];
+				if(state != null) {
+					var stats = state.stats;
+
+					totalAttack += stats.attackCount;
+					totalError += stats.mistakeCount;
+					totalEffective += stats.effectiveScale;
+					totalScore += stats.score;
+					totalScoreScale += stats.scoreScale;
+
+					count++;
+				}
+			}
+
+			if(count > 0) {
+				totalEffective /= count;
+				totalScoreScale /= count;
+			}
+		}
 	}
 
 	public int Progress(int stateIndex, float[] attackScales, int mistakeCount, int roundCount) {
@@ -387,14 +430,6 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 		mLevelStates = null;
 		mLevelInd = -1;
 		mPlayStateInd = 0;
-
-		var progCount = 0;
-
-		//determine progress count
-		for(int i = 0; i < levels.Length; i++)
-			progCount += levels[i].progressCount;
-
-		LoLManager.instance.progressMax = progCount;
 	}
 
 	private void LoadStates() {
@@ -461,6 +496,8 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 	}
 
 	private void GenerateLevelStates() {
+		GenerateProgressMax();
+
 		var stateCount = GenerateLevelStateCount();
 				
 		mLevelStates = new LevelState[stateCount];
@@ -471,5 +508,15 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 			if(lvl.isLevel)
 				mLevelStates[lvl.playIndex] = new LevelState(lvl.progressCount);
 		}
+	}
+
+	private void GenerateProgressMax() {
+		var progCount = 0;
+
+		//determine progress count
+		for(int i = 0; i < levels.Length; i++)
+			progCount += levels[i].progressCount;
+
+		LoLManager.instance.progressMax = progCount;
 	}
 }

@@ -178,7 +178,7 @@ SpriteRenderer:
   m_SortingLayer: 4
   m_SortingOrder: 1000
   m_Sprite: {fileID: 21300000, guid: b6f95f1cee1c6e54888765b88d1efa85, type: 3}
-  m_Color: {r: 1, g: 0.8431373, b: 0.6, a: 1}
+  m_Color: {r: 0.99639505, g: 0.691071, b: 0.4729984, a: 1.0381944}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -205,7 +205,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4527302387277666313
 Transform:
   m_ObjectHideFlags: 0
@@ -229,7 +229,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6360976107408948696}
   serializedVersion: 8
-  lengthInSec: 0.3
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -304,8 +304,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.3
-      minScalar: 0.15
+      scalar: 0.5
+      minScalar: 0.35
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -939,7 +939,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.57
+      value: 1.2
       mode: 0
       spread: 0
       speed:
