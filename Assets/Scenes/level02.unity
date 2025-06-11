@@ -1841,6 +1841,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rounds: 2
   quotientResultCount: 1
+  splitUnlockCount: 1
   tensMultRanges:
   - min: 4
     max: 9
@@ -3311,6 +3312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rounds: 2
   quotientResultCount: 1
+  splitUnlockCount: 1
   tensMultRanges:
   - min: 4
     max: 9

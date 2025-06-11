@@ -70,7 +70,7 @@ public class PlayController : GameModeController<PlayController> {
 	public float attackScale { //[0, 1] = attackValue/attackCapacity
 		get {
 			var fAttackVal = (float)mAttackValue;
-			var fAttackCapacity = (float)GameData.instance.playAttackCapacity;
+			var fAttackCapacity = (float)GameData.instance.playAttackEfficiencyCount;
 
 			return Mathf.Clamp01(fAttackVal / fAttackCapacity);
 		}
@@ -88,6 +88,15 @@ public class PlayController : GameModeController<PlayController> {
 
 	public BlobNumberGenBase currentNumberGen { get { return numberGens[mNumberGenInd]; } }
 
+	public bool isDivisorLock {
+		get {
+			if(currentNumberGen == null)
+				return false;
+
+			return mSplitCount < currentNumberGen.splitUnlockCount;
+		}
+	}
+
 	private int mAttackValue;
 	private int mNumberGenInd; //this is level state in GameData
 	private int mCurHitpoints;
@@ -95,6 +104,8 @@ public class PlayController : GameModeController<PlayController> {
 
 	private int mFailRoundCount; //relative to a round
 	private int mFailCount; //saved
+
+	private int mSplitCount; //relative to a round
 
 	private bool mIsAttackComplete;
 
@@ -190,7 +201,8 @@ public class PlayController : GameModeController<PlayController> {
 				yield return null;
 
 			//spawn blobs
-			var spawnInfos = numGen.GenerateSpawnInfos();
+			var spawnParm = new BlobNumberGenParam { divisorLock = isDivisorLock };
+			var spawnInfos = numGen.GenerateSpawnInfos(spawnParm);
 
 			boardControl.Spawn(spawnInfos);
 						
@@ -490,11 +502,24 @@ public class PlayController : GameModeController<PlayController> {
 						boardControl.Spawn(new BlobSpawnInfo(blobSplitDataRight, blobPos - dir * blobSplitDataRight.spawnPointCheckRadius, rightValue, blobDividend.divisor, Mathf.Min(splitCount, blobSplitDataRight.splitCount)));
 				}
 
+				//increment split count
+				mSplitCount++;
+
+				//unlock divisors
+				if(!isDivisorLock) {
+					var blobActives = boardControl.blobActives;
+					for(int i = 0; i < blobActives.Count; i++) {
+						var blob = blobActives[i];
+						if(blob.data.type == BlobData.Type.Divisor)
+							blob.isLocked = false;
+					}
+				}
+
 				//spawn a duplicate divisor
 				if(blobDivisor) {
 					dir = M8.MathUtil.RotateAngle(Vector2.up, Random.Range(0f, 360f));
 
-					boardControl.Spawn(new BlobSpawnInfo(blobDivisor.data, blobDivisor.position + (dir * blobDivisor.radius * 2f), blobDivisor.number, blobDivisor.number));
+					boardControl.Spawn(new BlobSpawnInfo(blobDivisor.data, blobDivisor.position + (dir * blobDivisor.radius * 2f), blobDivisor.number, blobDivisor.number, isDivisorLock));
 				}
 
 				ReduceAttackValue(GameData.instance.playAttackSplitReduce);
@@ -663,6 +688,7 @@ public class PlayController : GameModeController<PlayController> {
 			mAttackScales.Clear();
 
 		mFailRoundCount = 0;
+		mSplitCount = 0;
 
 		roundPause = false;
 

@@ -23,7 +23,7 @@ public class BlobNumberGenPair : BlobNumberGenBase {
 		blobDivisor.InitPool(blobPool);
 	}
 
-	public override BlobSpawnInfo[] GenerateSpawnInfos() {
+	public override BlobSpawnInfo[] GenerateSpawnInfos(BlobNumberGenParam parms) {
 		var gameDat = GameData.instance;
 		
 		var pair = numberPairs[mInd];
@@ -35,7 +35,7 @@ public class BlobNumberGenPair : BlobNumberGenBase {
 		}
 
 		mSpawnInfos[0] = new BlobSpawnInfo(blobDividend, pair.dividend, pair.divisor, blobDividend.splitCount);
-		mSpawnInfos[1] = new BlobSpawnInfo(blobDivisor, pair.divisor, pair.divisor, 0);
+		mSpawnInfos[1] = new BlobSpawnInfo(blobDivisor, pair.divisor, pair.divisor, 0, parms.divisorLock);
 
 		ClearOps();
 

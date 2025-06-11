@@ -213,6 +213,7 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 
 	[Header("Play Config")]
 	public int playAttackCapacity = 10;
+	public int playAttackEfficiencyCount = 8; //what attack value is considered 100% efficient
 	public float playAttackFullThreshold = 0.6f; //at what percentage of attack is considered full
 	public int playAttackSplitReduce = 1; //amount to reduce when splitting blob
 	public int playAttackErrorReduce = 2; //amount of reduction when player fails an action

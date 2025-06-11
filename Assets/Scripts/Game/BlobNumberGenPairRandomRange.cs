@@ -20,7 +20,7 @@ public class BlobNumberGenPairRandomRange : BlobNumberGenBase {
 		blobDivisor.InitPool(blobPool);
 	}
 
-	public override BlobSpawnInfo[] GenerateSpawnInfos() {
+	public override BlobSpawnInfo[] GenerateSpawnInfos(BlobNumberGenParam parms) {
 		var divisor = divisors[mDivisorInd];
 
 		mDivisorInd++;
@@ -32,7 +32,7 @@ public class BlobNumberGenPairRandomRange : BlobNumberGenBase {
 		var dividend = multRange.random * divisor;
 
 		mSpawnInfoPair[0] = new BlobSpawnInfo(blobDividend, dividend, divisor, blobDividend.splitCount);
-		mSpawnInfoPair[1] = new BlobSpawnInfo(blobDivisor, divisor, divisor, 0);
+		mSpawnInfoPair[1] = new BlobSpawnInfo(blobDivisor, divisor, divisor, 0, parms.divisorLock);
 
 		ClearOps();
 

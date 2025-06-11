@@ -2,9 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct BlobNumberGenParam {
+	public bool divisorLock;
+}
+
 public abstract class BlobNumberGenBase : MonoBehaviour {
 	public int rounds = 1;
 	public int quotientResultCount = 1;
+	public int splitUnlockCount = 0; //how many times to split before divisors are unlocked
 
 	public int opCount { get { return mOps.Count; } }
 
@@ -23,7 +28,7 @@ public abstract class BlobNumberGenBase : MonoBehaviour {
 
 	public abstract void InitBlobPoolTypes(M8.PoolController blobPool);
 
-	public abstract BlobSpawnInfo[] GenerateSpawnInfos();
+	public abstract BlobSpawnInfo[] GenerateSpawnInfos(BlobNumberGenParam parms);
 
 	private const int opCapacity = 4;
 	private M8.CacheList<Operation> mOps = new M8.CacheList<Operation>(opCapacity);

@@ -168,6 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rounds: 1
   quotientResultCount: 1
+  splitUnlockCount: 1
   tensMultRanges:
   - min: 2
     max: 9
@@ -3309,6 +3310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rounds: 1
   quotientResultCount: 1
+  splitUnlockCount: 0
   blobDividend: {fileID: 11400000, guid: ec5aa06a2c2a27c45ac6a032e88f443d, type: 2}
   blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
   numberPairs:

@@ -491,6 +491,7 @@ MonoBehaviour:
   hoverDragMaterial: {fileID: 2100000, guid: ecf9db6dace86144ea146135607073dc, type: 2}
   errorMaterial: {fileID: 2100000, guid: cc640de33a05eb544ba61c119a9376bf, type: 2}
   correctMaterial: {fileID: 2100000, guid: c7a4a5ca2ad0cfe479218a6f7b56bdc3, type: 2}
+  lockMaterial: {fileID: 2100000, guid: 53a7f46cb30c6c3478d3fca7eed1ef7e, type: 2}
   errorDuration: 1
   solvedFX: {fileID: 0}
   correctStartDelay: 0.5
@@ -501,6 +502,7 @@ MonoBehaviour:
     min: -0.5
     max: 0.5
   spawnIgnoreColorParam: 0
+  spawnFX: {fileID: 3955402692804512318}
   highlightGO: {fileID: 0}
   highlightLockGO: {fileID: 5660326344705590307}
   splitActive: {fileID: 8216327071535083140}
@@ -510,6 +512,7 @@ MonoBehaviour:
   takeSpawn: 0
   takeDespawn: 1
   takeCorrect: 2
+  takeUnlock: 3
   soundSpawn: boop
   signalListenDespawn: {fileID: 0}
   signalInvokeClick: {fileID: 11400000, guid: 472fce4ec1d549849bd83078d05b26dd, type: 2}

@@ -19,12 +19,12 @@ MonoBehaviour:
     numLoop: 1
     loopMode: 0
     loopBackToFrame: 0
-    trackCounter: 15
+    trackCounter: 16
     groupCounter: 0
     rootGroup:
       group_name: Group0
       group_id: 0
-      elements: 020000000400000005000000060000000700000008000000090000000f0000000b0000000c0000000d0000000e000000
+      elements: 020000000400000005000000060000000700000008000000090000000f0000000b0000000c0000000d000000
       foldout: 1
     groupValues: []
   - name: despawn
@@ -55,30 +55,27 @@ MonoBehaviour:
       elements: 030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000
       foldout: 1
     groupValues: []
+  - name: unlock
+    frameRate: 30
+    endFramePadding: 0
+    numLoop: 1
+    loopMode: 0
+    loopBackToFrame: 0
+    trackCounter: 3
+    groupCounter: 0
+    rootGroup:
+      group_name: Group0
+      group_id: 0
+      elements: 02000000
+      foldout: 1
+    groupValues: []
   serializeData:
     _audioTracks: []
     _audioKeys: []
     _cameraSwitcherTracks: []
     _cameraSwitcherKeys: []
-    _eventTracks:
-    - _version: 1
-      id: 14
-      name: Track11
-      foldout: 1
-      _targetPath: spawnFX
-      obj: {fileID: 0}
-      componentName: 
-    _eventKeys:
-    - interp: 0
-      frame: 9
-      easeType: 1
-      amplitude: 0
-      period: 0
-      customEase: []
-      useSendMessage: 0
-      parameters: []
-      methodName: Play
-      componentType: ParticleSystem
+    _eventTracks: []
+    _eventKeys: []
     _goSetActiveTracks:
     - _version: 1
       id: 13
@@ -1207,6 +1204,13 @@ MonoBehaviour:
       _targetPath: ringGlowLarge
       axis: 3
       _obj: {fileID: 0}
+    - _version: 3
+      id: 2
+      name: Track1
+      foldout: 1
+      _targetPath: .
+      axis: 3
+      _obj: {fileID: 0}
     _scaleKeys:
     - interp: 0
       frame: 1
@@ -1334,6 +1338,102 @@ MonoBehaviour:
       isConstSpeed: 0
       _paths: []
       scale: {x: 1.1, y: 1.1, z: 1}
+    - interp: 0
+      frame: 1
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 15
+      isConstSpeed: 0
+      _paths:
+      - type: 1
+        subdivisionsXSegment: 10
+        wps:
+        - vals:
+          - 1
+          - 1
+          - 1
+        - vals:
+          - 1.25
+          - 1.25
+          - 1
+        - vals:
+          - 1
+          - 1
+          - 1
+        - vals:
+          - 1.1
+          - 1.1
+          - 1
+        - vals:
+          - 1
+          - 1
+          - 1
+        wpsTimeTable:
+        - 0.42857143
+        - 0.64285713
+        - 0.85714287
+        controlPoints:
+        - a:
+            vals:
+            - 1.1
+            - 1.1
+            - 1
+          b:
+            vals: []
+        - a:
+            vals:
+            - 1.25
+            - 1.25
+            - 1
+          b:
+            vals: []
+        length: 1.00377
+        timesTable: []
+        lengthsTable: []
+        _isConstantSpeed: 0
+      scale: {x: 1, y: 1, z: 1}
+    - interp: 0
+      frame: 7
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      isConstSpeed: 0
+      _paths: []
+      scale: {x: 1.25, y: 1.25, z: 1}
+    - interp: 0
+      frame: 10
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      isConstSpeed: 0
+      _paths: []
+      scale: {x: 1, y: 1, z: 1}
+    - interp: 0
+      frame: 13
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      isConstSpeed: 0
+      _paths: []
+      scale: {x: 1.1, y: 1.1, z: 1}
+    - interp: 0
+      frame: 15
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      isConstSpeed: 0
+      _paths: []
+      scale: {x: 1, y: 1, z: 1}
     _trackLookups:
     - type: 11
       index: 0
@@ -1365,9 +1465,6 @@ MonoBehaviour:
     - type: 4
       index: 0
       keyIndices: 0000000001000000
-    - type: 3
-      index: 0
-      keyIndices: 00000000
     - type: 7
       index: 7
       keyIndices: 1000000011000000
@@ -1434,4 +1531,7 @@ MonoBehaviour:
     - type: 10
       index: 3
       keyIndices: 0600000007000000
-    _takeTrackCounts: 0c000000080000000d000000
+    - type: 11
+      index: 4
+      keyIndices: 090000000a0000000b0000000c0000000d000000
+    _takeTrackCounts: 0b000000080000000d00000001000000

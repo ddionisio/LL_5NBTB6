@@ -93,7 +93,7 @@ public class HUDAttackValue : MonoBehaviour {
 			text.text = mCurAttackValue.ToString();
 
 		//determine attack icon color
-		var attackScale = Mathf.Clamp01(mCurAttackValueF / GameData.instance.playAttackCapacity);
+		var attackScale = Mathf.Clamp01(mCurAttackValueF / GameData.instance.playAttackEfficiencyCount);
 
 		//determine if our attack is fully effective
 		var isAttackFull = attackScale >= GameData.instance.playAttackFullThreshold;

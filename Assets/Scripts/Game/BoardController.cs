@@ -364,6 +364,7 @@ public class BoardController : MonoBehaviour {
 			mBlobSpawnParms[Blob.parmDivisor] = spawnInfo.divisor;
 			mBlobSpawnParms[Blob.parmSplitCount] = spawnInfo.splitCount;
 			mBlobSpawnParms[Blob.parmState] = spawnInfo.spawnToState != Blob.State.None ? spawnInfo.spawnToState : Blob.State.Normal;
+			mBlobSpawnParms[Blob.parmLock] = spawnInfo.locked;
 
 			string blobName;
 

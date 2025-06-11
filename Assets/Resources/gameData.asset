@@ -107,7 +107,8 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: 1f5cadb50390689459d6d01efc5893db, type: 3}
     scale: 0
   playAttackCapacity: 10
-  playAttackFullThreshold: 0.6
+  playAttackEfficiencyCount: 8
+  playAttackFullThreshold: 0.7
   playAttackSplitReduce: 1
   playAttackErrorReduce: 2
   playErrorCount: 3

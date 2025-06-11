@@ -21,12 +21,16 @@ public class BlobNumberGenTens : BlobNumberGenBase {
 		blobDivisor.InitPool(blobPool);
 	}
 
-	public override BlobSpawnInfo[] GenerateSpawnInfos() {
+	public override BlobSpawnInfo[] GenerateSpawnInfos(BlobNumberGenParam parms) {
 		if(mSpawnInfoPool.Count < 2)
 			GeneratePool();
 
 		mSpawnInfoPair[0] = mSpawnInfoPool.RemoveLast();
-		mSpawnInfoPair[1] = mSpawnInfoPool.RemoveLast();
+
+		var divisorInf = mSpawnInfoPool.RemoveLast();
+		divisorInf.locked = parms.divisorLock;
+
+		mSpawnInfoPair[1] = divisorInf;
 
 		ClearOps();
 

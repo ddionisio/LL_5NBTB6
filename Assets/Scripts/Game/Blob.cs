@@ -14,6 +14,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public const string parmState = "state";
     public const string parmDivisor = "divisor";
     public const string parmSplitCount = "splitC";
+    public const string parmLock = "lock";
 
     public enum State {
         None,
@@ -56,8 +57,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 	public Material hoverDragMaterial;
     public Material errorMaterial;
     public Material correctMaterial;
+	public Material lockMaterial;
 
-    [Header("Error Settings")]
+	[Header("Error Settings")]
     public float errorDuration = 1f;
 
     [Header("Solved Settings")]
@@ -70,6 +72,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public M8.RangeFloat spawnCenterImpulse;
     public M8.RangeFloat spawnEdgeImpulse;
     public bool spawnIgnoreColorParam;
+    public ParticleSystem spawnFX;
 
     [Header("Highlight Display")]
     public GameObject highlightGO; //active during enter and dragging
@@ -90,8 +93,10 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public int takeDespawn = -1;
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public int takeCorrect = -1;
+	[M8.Animator.TakeSelector(animatorField = "animator")]
+	public int takeUnlock = -1;
 
-    [Header("Sfx")]
+	[Header("Sfx")]
     [M8.SoundPlaylist]
     public string soundSpawn;
 
@@ -148,7 +153,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     public bool inputLocked {
-        get { return mInputLocked || mInputLockedInternal; }
+        get { return mInputLocked || mInputLockedInternal || mIsLocked; }
         set {
             if(mInputLocked != value) {
                 mInputLocked = value;
@@ -213,7 +218,36 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
-    public bool canSplit { get { return mCanSplit; } }
+    public bool canSplit { get { return mCanSplit && !mIsLocked; } }
+
+    public bool isLocked {
+        get { return mIsLocked; }
+        set {
+            if(mIsLocked != value) {
+                mIsLocked = value;
+
+                if(mIsLocked) {
+                    ApplyInputLocked();
+                    ApplyJellySpriteMaterial(lockMaterial);
+                }
+                else {
+                    switch(mState) {
+                        case State.Normal:
+                            ApplyJellySpriteMaterial(normalMaterial);
+                            break;
+                        case State.Correct:
+                            ApplyJellySpriteMaterial(correctMaterial);
+                            break;
+                    }
+
+                    if(takeUnlock != -1)
+                        animator.Play(takeUnlock);
+
+                    if(spawnFX) spawnFX.Play();
+				}
+			}
+        }
+    }
 
     private int mNumber;
 
@@ -242,6 +276,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     private State mSpawnToState;
 
     private bool mCanSplit;
+
+    private bool mIsLocked;
 
     public void ReduceSplitCounter() {
         if(splitCount > 0)
@@ -299,6 +335,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     public void ApplyJellySpriteMaterial(Material mat) {
+        if(mIsLocked)
+            mat = lockMaterial;
+
         if(jellySprite.m_Material != mat) {
             jellySprite.m_Material = mat;
             jellySprite.ReInitMaterial();
@@ -306,6 +345,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     public OperatorType GetConnectOpType(Blob otherBlob) {
+        if(isLocked)
+            return OperatorType.None;
+
+        if(otherBlob.isLocked)
+            return OperatorType.None;
+
         if(!(data && otherBlob.data))
             return OperatorType.None;
 
@@ -370,6 +415,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         mSpawnToState = State.Normal;
 
+        mIsLocked = false;
+
 		Vector2 pos = Vector2.zero;
         float rot = 0f;
 
@@ -396,7 +443,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 if(toState != State.None)
                     mSpawnToState = toState;
 			}
-        }
+
+            if(parms.ContainsKey(parmLock)) mIsLocked = parms.GetValue<bool>(parmLock);
+		}
 
 		mCanSplit = divisor > 0 && splitCount > 0 && data.CanSplit(mNumber, divisor);
 
@@ -407,12 +456,14 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
 		bool isInit = jellySprite.CentralPoint != null;
         if(isInit) {
+            var mat = mIsLocked ? lockMaterial : normalMaterial;
+
             //need to reinitialize mesh/material?
-            bool isMaterialChanged = jellySprite.m_Material != normalMaterial;
+            bool isMaterialChanged = jellySprite.m_Material != mat;
             bool isSpriteChanged = jellySprite.m_Sprite != spr;
             bool isColorChanged = jellySprite.m_Color != clr;
 
-            jellySprite.m_Material = normalMaterial;
+            jellySprite.m_Material = mat;
             jellySprite.m_Color = mLastColor = clr;
 
             if(isSpriteChanged)
@@ -467,7 +518,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         if(state == State.Normal) {
             //highlight on
             if(hoverDragMaterial)
-                ApplyJellySpriteMaterial(hoverDragMaterial);
+				ApplyJellySpriteMaterial(hoverDragMaterial);
 
             if(highlightGO) highlightGO.SetActive(!isDragging);
             if(splitActive) splitActive.isActive = !isDragging && mCanSplit;
@@ -483,7 +534,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         //highlight off
         if(state == State.Normal) {
             if(!isDragging)
-                ApplyJellySpriteMaterial(normalMaterial);
+				ApplyJellySpriteMaterial(normalMaterial);
 
             if(highlightGO) highlightGO.SetActive(false);
             if(splitActive) splitActive.isActive = false;
@@ -534,7 +585,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         else
             yield return null;
 
-        mRout = null;
+		if(spawnFX) spawnFX.Play();
+
+		mRout = null;
 
         state = mSpawnToState;
 
@@ -555,7 +608,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     IEnumerator DoDespawn() {
-        ApplyJellySpriteMaterial(normalMaterial);
+		ApplyJellySpriteMaterial(normalMaterial);
 
         if(takeDespawn != -1)
             yield return animator.PlayWait(takeDespawn);
@@ -569,14 +622,14 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     IEnumerator DoCorrect() {
         if(correctMaterial)
-            ApplyJellySpriteMaterial(correctMaterial);
+			ApplyJellySpriteMaterial(correctMaterial);
 
         if(correctStartDelay > 0f)
             yield return new WaitForSeconds(correctStartDelay);
         else
             yield return null;
 
-        ApplyJellySpriteMaterial(normalMaterial);
+		ApplyJellySpriteMaterial(normalMaterial);
 
         //something fancy
         if(takeCorrect != -1)

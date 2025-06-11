@@ -742,7 +742,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: -3
-  m_Color: {r: 0.50823534, g: 0.29882357, b: 0.30352944, a: 1}
+  m_Color: {r: 0.33176473, g: 0.32705885, b: 0.48470595, a: 1}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -963,7 +963,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: -2
-  m_Color: {r: 0.5505883, g: 0.42588237, b: 0.35058826, a: 1}
+  m_Color: {r: 0.35529414, g: 0.41647062, b: 0.50117654, a: 1}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -1271,7 +1271,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: -5
-  m_Color: {r: 0.33882356, g: 0.1992157, b: 0.20235296, a: 1}
+  m_Color: {r: 0.22117649, g: 0.21803923, b: 0.32313728, a: 1}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -1577,7 +1577,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.5505883, g: 0.42588237, b: 0.35058826, a: 1}
+      maxColor: {r: 0.35529414, g: 0.41647062, b: 0.50117654, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -6340,7 +6340,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: -5
-  m_Color: {r: 0.4094118, g: 0.23294121, b: 0.28235298, a: 0.8}
+  m_Color: {r: 0.30352944, g: 0.24235298, b: 0.42588237, a: 0.8}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -6394,6 +6394,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rounds: 1
   quotientResultCount: 1
+  splitUnlockCount: 1
   blobDividend: {fileID: 11400000, guid: ec5aa06a2c2a27c45ac6a032e88f443d, type: 2}
   blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
   numberPairs:
@@ -6445,6 +6446,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rounds: 2
   quotientResultCount: 1
+  splitUnlockCount: 1
   tensMultRanges:
   - min: 2
     max: 9
@@ -6769,7 +6771,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.50823534, g: 0.29882357, b: 0.30352944, a: 1}
+      maxColor: {r: 0.33176473, g: 0.32705885, b: 0.48470595, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -11617,7 +11619,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.4094118, g: 0.23294121, b: 0.28235298, a: 1}
+      maxColor: {r: 0.30352944, g: 0.24235298, b: 0.42588237, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -16373,7 +16375,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: -3
-  m_Color: {r: 0.50823534, g: 0.29882357, b: 0.30352944, a: 1}
+  m_Color: {r: 0.33176473, g: 0.32705885, b: 0.48470595, a: 1}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -16412,6 +16414,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rounds: 2
   quotientResultCount: 1
+  splitUnlockCount: 0
   blobDividend: {fileID: 11400000, guid: 9bee6fbf7145e7d409cadadeda40383a, type: 2}
   blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
   numberPairs:
@@ -16655,7 +16658,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: -5
-  m_Color: {r: 0.4094118, g: 0.23294121, b: 0.28235298, a: 0.8}
+  m_Color: {r: 0.30352944, g: 0.24235298, b: 0.42588237, a: 0.8}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -16876,7 +16879,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Color: {r: 0.642353, g: 0.49686274, b: 0.40901962, a: 1}
+  m_Color: {r: 0.4145098, g: 0.48588237, b: 0.58470595, a: 1}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -17082,7 +17085,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Color: {r: 0.642353, g: 0.49686274, b: 0.40901962, a: 1}
+  m_Color: {r: 0.4145098, g: 0.48588237, b: 0.58470595, a: 1}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -17352,7 +17355,7 @@ SpriteShapeRenderer:
   m_SortingLayerID: 1074545171
   m_SortingLayer: -2
   m_SortingOrder: -2
-  m_Color: {r: 0.5505883, g: 0.42588237, b: 0.35058826, a: 1}
+  m_Color: {r: 0.35529414, g: 0.41647062, b: 0.50117654, a: 1}
   m_MaskInteraction: 0
   m_ShapeTexture: {fileID: 2800000, guid: e2d2e2961fc51a6449f256da4398c69b, type: 3}
   m_Sprites: []
@@ -17541,15 +17544,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3770828633620728406, guid: d13a5cbbfddcaa64893eedcb34138834, type: 3}
       propertyPath: m_Color.b
-      value: 0.2529412
+      value: 0.27058825
       objectReference: {fileID: 0}
     - target: {fileID: 3770828633620728406, guid: d13a5cbbfddcaa64893eedcb34138834, type: 3}
       propertyPath: m_Color.g
-      value: 0.29607844
+      value: 0.039215688
       objectReference: {fileID: 0}
     - target: {fileID: 3770828633620728406, guid: d13a5cbbfddcaa64893eedcb34138834, type: 3}
       propertyPath: m_Color.r
-      value: 0.24901962
+      value: 0.2647059
       objectReference: {fileID: 0}
     - target: {fileID: 5072863734412613655, guid: d13a5cbbfddcaa64893eedcb34138834, type: 3}
       propertyPath: numberGens.Array.size
