@@ -7,6 +7,8 @@ using TMPro;
 public class Preservatives : MonoBehaviour {
 	public Camera _cam;
 	public Graphic _img;
+	public Selectable _sel;
+	public Button _btn;
 	public CanvasGroup _canvasGroup;
 	public RectTransform _rectTransform;
 	public Blob _blob;
@@ -29,6 +31,14 @@ public class Preservatives : MonoBehaviour {
 
 		if(_img) {
 			_img.color = Color.white;
+		}
+
+		if(_sel) {
+			_sel.interactable = true;
+		}
+
+		if(_btn) {
+			_btn.interactable = true;
 		}
 
 		if(_canvasGroup) {
@@ -87,11 +97,13 @@ public class Preservatives : MonoBehaviour {
 		}
 
 		if(_textGUI) {
+			_textGUI.text = "";
 			_textGUI.color = Color.white;
 			_textGUI.alpha = 1f;
 		}
 		
 		if(_textTMP) {
+			_textTMP.text = "";
 			_textTMP.color = Color.white;
 			_textTMP.alpha = 1f;
 		}

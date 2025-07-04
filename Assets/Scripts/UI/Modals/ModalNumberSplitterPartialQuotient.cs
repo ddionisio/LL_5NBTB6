@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 using TMPro;
 
-public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalPush, M8.IModalPop {
+public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalPush, M8.IModalPop, M8.IModalActive {
 	public const string parmBlobDividend = "blobDividend";
 	public const string parmBlobDivisor = "blobDivisor";
 
@@ -35,16 +36,26 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 	[Header("Numbers")]
 	public TMP_Text dividendNumberText;
 	public TMP_Text divisorNumberText;
-
-	public RectTransform quotientNumberRoot;
-	public TMP_Text quotientNumberText;
-	public GameObject quotientNumberHighlightGO;
-
+		
 	public RectTransform outputNumberRoot;
 	public TMP_Text outputNumberText;
 	public GameObject outputNumberHighlightGO;
 
 	public TMP_Text reduceNumberText;
+
+	[Header("Quotient")]
+	public RectTransform quotientNumberRoot;
+	public GameObject quotientNumberHighlightGO;
+	public TMP_Text[] quotientDigitTexts; //this determines the tens-limit
+	public CanvasGroup quotientDigitButtonCanvasGroup;
+	public CanvasGroup quotientTensButtonCanvasGroup;
+	public Button quotientNextButton;
+	public GameObject quotientTensButtonGO; //buttons
+	public M8.Animator.Animate quotientAnimator;
+	[M8.Animator.TakeSelector(animatorField= "quotientAnimator")]
+	public int quotientTakeEnter = -1;
+	[M8.Animator.TakeSelector(animatorField = "quotientAnimator")]
+	public int quotientTakeExit = -1;
 
 	[Header("Reduce Number Config")]
 	public float reduceNumberMoveDelay = 0.3f;
@@ -61,7 +72,6 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 	public string sfxError;
 
 	[Header("Signal Invoke")]
-	public M8.SignalString signalInvokeSetOpText;
 	public M8.SignalBoolean signalInvokeInputActive;
 	public M8.Signal signalInvokeError;
 	public SignalBlobActionResult signalInvokeResult;
@@ -74,6 +84,10 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 
 	public SelectType curSelectType { get { return mCurSelect; } }
 	public int mistakeCount { get { return mMistakeCount; } }
+
+	public int quotientDigitNumber { get { return mQuotientDigitNumber; } }
+	public int quotientDigitCount { get { return mQuotientDigitCount; } }
+	public int quotientDigitMax { get { return mQuotientDigitMax; } }
 
 	private M8.GenericParams mNumpadParms = new M8.GenericParams();
 
@@ -89,16 +103,58 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 	private SelectType mCurSelect;
 
 	private int mDividendNumber;
-	private int mDivisorNumber;
-	private int mQuotientNumber;
+	private int mDivisorNumber;	
 	private int mOutputNumber;
 
-	private bool mIsQuotientNumberChanged;
+	private int mQuotientNumber;
+	private int mQuotientDigitNumber; //left-most digit value
+	private int mQuotientDigitCount;
+	private int mQuotientDigitMax;
 
 	private WaitForSeconds mWaitInterval = new WaitForSeconds(0.2f);
 	private WaitForSeconds mWaitOutput = new WaitForSeconds(1f);
 
 	private System.Text.StringBuilder mOpText = new System.Text.StringBuilder();
+
+	public void QuotientIncreaseDigit() {
+		if(mQuotientDigitCount < mQuotientDigitMax) {
+			mQuotientDigitCount++;
+
+			QuotientRefreshNumber();
+
+			QuotientRefreshDigitCountDisplay();
+		}
+	}
+
+	public void QuotientDecreaseDigit() {
+		if(mQuotientDigitCount > 1) {
+			mQuotientDigitCount--;
+
+			QuotientRefreshNumber();
+
+			QuotientRefreshDigitCountDisplay();
+		}
+	}
+
+	public void QuotientIncreaseNumber() {
+		mQuotientDigitNumber++;
+		if(mQuotientDigitNumber == 10)
+			mQuotientDigitNumber = 1;
+
+		QuotientRefreshNumber();
+
+		QuotientRefreshDigitNumberDisplay();
+	}
+
+	public void QuotientDecreaseNumber() {
+		mQuotientDigitNumber--;
+		if(mQuotientDigitNumber == 0)
+			mQuotientDigitNumber = 9;
+
+		QuotientRefreshNumber();
+
+		QuotientRefreshDigitNumberDisplay();
+	}
 
 	void M8.IModalPop.Pop() {
 		mBlobDividend = null;
@@ -110,16 +166,26 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 		if(signalListenNext) signalListenNext.callback -= OnSignalNext;
 	}
 
+	void M8.IModalActive.SetActive(bool aActive) {
+		if(aActive) {
+			mCurSelect = SelectType.Quotient;
+
+			if(quotientTakeEnter != -1)
+				quotientAnimator.Play(quotientTakeEnter);
+		}
+		else if(mCurSelect == SelectType.Quotient) {
+			if(quotientTakeExit != -1)
+				quotientAnimator.Play(quotientTakeExit);
+		}
+	}
+
 	void M8.IModalPush.Push(M8.GenericParams parms) {
 		mBlobDividend = null;
 		mBlobDivisor = null;
 
 		mDividendNumber = 0;
 		mDivisorNumber = 0;
-		mQuotientNumber = 0;
 		mOutputNumber = 0;
-
-		mIsQuotientNumberChanged = false;
 
 		var dividendClr = Color.white;
 
@@ -175,8 +241,6 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 
 			if(quotientNumberRoot)
 				blobQuotientWidget.SetToAnchor(quotientNumberRoot, false);
-
-			mQuotientNumber = 1;
 		}
 
 		if(blobOutputWidget) {
@@ -196,8 +260,9 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 		if(dividendNumberText) dividendNumberText.text = mDividendNumber.ToString();
 
 		RefreshSelectDisplay();
-		RefreshQuotientNumberDisplay();
 		RefreshOutputNumberDisplay();
+
+		QuotientInit();
 
 		//mistake
 		mMistakeCount = 0;
@@ -208,30 +273,12 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 		if(signalListenNumberChanged) signalListenNumberChanged.callback += OnSignalNumberChanged;
 		if(signalListenPrev) signalListenPrev.callback += OnSignalNext;
 		if(signalListenNext) signalListenNext.callback += OnSignalNext;
-
-		//setup and open numpad
-		mNumpadParms[ModalCalculator.parmInitValue] = 1;
-		mNumpadParms[ModalCalculator.parmMaxDigit] = quotientDigitLimit;
-		mNumpadParms[ModalCalculatorParmExt.operationText] = "";
-		mNumpadParms[ModalCalculatorParmExt.showPrevNext] = true;
-
-		M8.ModalManager.main.Open(GameData.instance.modalNumpad, mNumpadParms);
 	}
 
 	void OnSignalProceed(float val) {
 		var iVal = Mathf.RoundToInt(val);
 
 		switch(mCurSelect) {
-			case SelectType.Quotient:
-				if(mQuotientNumber != iVal) {
-					mQuotientNumber = iVal;
-					mIsQuotientNumberChanged = true;
-					RefreshQuotientNumberDisplay();
-				}
-
-				Select(SelectType.Output);
-				break;
-
 			case SelectType.Output:
 				if(mOutputNumber != iVal) {
 					mOutputNumber = Mathf.RoundToInt(val);
@@ -247,14 +294,6 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 		var iVal = Mathf.RoundToInt(val);
 
 		switch(mCurSelect) {
-			case SelectType.Quotient:
-				if(mQuotientNumber != iVal) {
-					mQuotientNumber = iVal;
-					mIsQuotientNumberChanged = true;
-					RefreshQuotientNumberDisplay();
-				}
-				break;
-
 			case SelectType.Output:
 				if(mOutputNumber != iVal) {
 					mOutputNumber = iVal;
@@ -280,6 +319,53 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 		mReduceMoveEaseFunc = DG.Tweening.Core.Easing.EaseManager.ToEaseFunction(reduceMoveEase);
 	}
 
+	private void QuotientRefreshNumber() {
+		mQuotientNumber = mQuotientDigitNumber;
+
+		for(int i = 1; i < mQuotientDigitCount; i++)
+			mQuotientNumber *= 10;
+	}
+
+	private void QuotientRefreshDigitNumberDisplay() {
+		quotientDigitTexts[0].text = mQuotientDigitNumber.ToString();
+	}
+
+	private void QuotientRefreshDigitCountDisplay() {
+		for(int i = 0; i < mQuotientDigitCount; i++)
+			quotientDigitTexts[i].gameObject.SetActive(true);
+
+		for(int i = mQuotientDigitCount; i < quotientDigitTexts.Length; i++)
+			quotientDigitTexts[i].gameObject.SetActive(false);
+	}
+
+	private void QuotientInit() {
+		mQuotientNumber = 1;
+		mQuotientDigitNumber = 1;
+		mQuotientDigitCount = 1;
+				
+		quotientDigitTexts[0].gameObject.SetActive(true);
+		quotientDigitTexts[0].text = "1";
+
+		var digitCheck = mDivisorNumber;
+
+		mQuotientDigitMax = 1;
+
+		for(int i = 1; i < quotientDigitTexts.Length; i++) {
+			if(digitCheck * 10 <= mDividendNumber) {
+				mQuotientDigitMax++;
+				digitCheck *= 10;
+			}
+
+			quotientDigitTexts[i].text = "0";
+			quotientDigitTexts[i].gameObject.SetActive(false);
+		}
+
+		quotientTensButtonGO.SetActive(mQuotientDigitMax > 1);
+
+		if(quotientTakeEnter != -1)
+			quotientAnimator.ResetTake(quotientTakeEnter);
+	}
+
 	private void Select(SelectType toSelect) {
 		if(mCurSelect != toSelect) {
 			mCurSelect = toSelect;
@@ -287,38 +373,36 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 			var modalNumpad = M8.ModalManager.main.GetBehaviour<ModalCalculator>(GameData.instance.modalNumpad);
 			if(!modalNumpad)
 				return;
-
-			mOpText.Clear();
-
+						
 			switch(mCurSelect) {
 				case SelectType.Quotient:
-					modalNumpad.SetMaxDigit(quotientDigitLimit, mQuotientNumber);
+					M8.ModalManager.main.CloseUpTo(GameData.instance.modalNumpad, true);
 
-					mOpText.Append(mDivisorNumber);
-					mOpText.Append(" x ?");
+					if(quotientTakeEnter != -1)
+						quotientAnimator.Play(quotientTakeEnter);
 
 					if(blobQuotientWidget) blobQuotientWidget.Pulse();
 					break;
 
 				case SelectType.Output:
-					if(mIsQuotientNumberChanged) {
-						modalNumpad.SetMaxDigit(modalNumpad.defaultMaxDigits, 0);
+					if(quotientTakeExit != -1)
+						quotientAnimator.Play(quotientTakeExit);
 
-						mIsQuotientNumberChanged = false;
-					}
-					else
-						modalNumpad.SetMaxDigit(modalNumpad.defaultMaxDigits, mOutputNumber);
-					
+					mOpText.Clear();
 					mOpText.Append(mDivisorNumber);
 					mOpText.Append(" x ");
 					mOpText.Append(mQuotientNumber);
 					mOpText.Append(" =");
 
+					mNumpadParms[ModalCalculator.parmInitValue] = mOutputNumber;
+					mNumpadParms[ModalCalculatorParmExt.operationText] = mOpText.ToString();
+					mNumpadParms[ModalCalculatorParmExt.showPrevNext] = true;
+
+					M8.ModalManager.main.Open(GameData.instance.modalNumpad, mNumpadParms);
+
 					if(blobOutputWidget) blobOutputWidget.Pulse();
 					break;
 			}
-
-			if(signalInvokeSetOpText) signalInvokeSetOpText.Invoke(mOpText.ToString());
 
 			RefreshSelectDisplay();
 		}
@@ -498,7 +582,7 @@ public class ModalNumberSplitterPartialQuotient : M8.ModalController, M8.IModalP
 	}
 
 	private void RefreshQuotientNumberDisplay() {
-		if(quotientNumberText) quotientNumberText.text = mQuotientNumber.ToString();
+		//if(quotientNumberText) quotientNumberText.text = mQuotientNumber.ToString();
 	}
 
 	private void RefreshOutputNumberDisplay() {

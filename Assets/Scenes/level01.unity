@@ -6398,8 +6398,8 @@ MonoBehaviour:
   blobDividend: {fileID: 11400000, guid: ec5aa06a2c2a27c45ac6a032e88f443d, type: 2}
   blobDivisor: {fileID: 11400000, guid: 8bd140293c5ea5041b640cb54d1350d4, type: 2}
   numberPairs:
-  - dividend: 224
-    divisor: 4
+  - dividend: 675
+    divisor: 5
 --- !u!1 &1133618897
 GameObject:
   m_ObjectHideFlags: 0

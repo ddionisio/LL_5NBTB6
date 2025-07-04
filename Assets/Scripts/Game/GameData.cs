@@ -355,14 +355,20 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 
 		var prog = GetProgressUpToLevel(mLevelInd, false) + mPlayStateInd;
 
-		LoLManager.instance.ApplyProgress(prog);
+		if(LoLManager.instance.curProgress < prog) {
+			Debug.Log("Progress: " + prog);
+
+			LoLManager.instance.ApplyProgress(prog);
+		}
+		else if(userData)
+			userData.Save();
 
 		return mPlayStateInd;
 	}
 
 	public void ProgressNext() {
 		int curProg = LoLManager.instance.curProgress;
-		int nextProg = GetProgressUpToLevel(mLevelInd, false);
+		int nextProg = GetProgressUpToLevel(mLevelInd, true);
 
 		var userData = LoLManager.instance.userData;
 
@@ -379,10 +385,13 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 		if(userData) {
 			userData.SetInt("lvlInd", mLevelInd);
 			userData.SetInt("playInd", mPlayStateInd);
-		}		
+		}
 
-		if(curProg != nextProg)
+		if(curProg < nextProg) {
+			Debug.Log("Progress Next: " + nextProg);
+
 			LoLManager.instance.ApplyProgress(nextProg);
+		}
 		else if(userData)
 			userData.Save();
 

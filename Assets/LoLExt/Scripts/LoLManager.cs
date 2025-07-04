@@ -322,7 +322,7 @@ namespace LoLExt {
 
         public virtual void ApplyProgress(int progress, int score) {
 
-            mCurProgress = Mathf.Clamp(progress, 0, _progressMax);            
+            mCurProgress = Mathf.Clamp(progress, 0, _progressMax);
 
             LOLSDK.Instance.SubmitProgress(score, mCurProgress, _progressMax);
 

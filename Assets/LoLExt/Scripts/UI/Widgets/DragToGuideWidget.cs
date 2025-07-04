@@ -10,7 +10,12 @@ namespace LoLExt {
         public RectTransform cursor;
         public RectTransform line;
 
-        [Header("Animation")]
+        [Header("Auto Play")]
+        public bool playOnEnable;
+        public RectTransform playOnEnableStart;
+		public RectTransform playOnEnableEnd;
+
+		[Header("Animation")]
         public Image cursorImage;
         public Sprite cursorIdleSprite;
         public Sprite cursorPressSprite;
@@ -112,7 +117,16 @@ namespace LoLExt {
             StopAllCoroutines();
         }
 
-        void OnDisable() {
+		void OnEnable() {
+			if(playOnEnable && playOnEnableEnd) {
+                Vector2 start = playOnEnableStart ? playOnEnableStart.position : transform.position;
+                Vector2 end = playOnEnableEnd.position;
+
+                Show(false, start, end);
+            }
+		}
+
+		void OnDisable() {
             Hide();
         }
 
